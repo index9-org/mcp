@@ -3,28 +3,16 @@
 [![npm version](https://badge.fury.io/js/%40index9%2Fmcp.svg)](https://badge.fury.io/js/%40index9%2Fmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Give your AI assistant up-to-date model knowledge. 1000+ models with real-time pricing, context windows, and capabilities. Latest data, instant responses, zero cost.
+Real-time model intelligence for your AI assistant. Search 1000+ models, compare pricing and capabilities, test performance—all with current data, zero cost.
 
-## ❌ Without Index9 MCP
+## What You Get
 
-LLMs rely on outdated training data about AI models:
+Your AI assistant can discover, compare, and recommend models with live data:
 
-- ❌ "Use GPT-4 for complex reasoning" (missing GPT-5.1, Claude Opus 4.5, and latest models)
-- ❌ "This fits in GPT-3.5's 4K context" (current models have 128K-2M+ context windows)
-- ❌ Generic advice without real pricing or capability comparisons
-- ❌ No awareness of cutting-edge models released this month
-
-## ✅ With Index9 MCP
-
-Your AI assistant has real-time access to the latest models and provides specific, data-driven recommendations:
-
-- ✅ "Use **GPT-5.1** - 400K context, $1.25/million input, latest frontier-grade reasoning with adaptive computation"
-- ✅ "For massive documents, try **Grok 4.1 Fast** with 2M context at $0.2/million input tokens"
-- ✅ "Vision + reasoning needed? Use **Claude Opus 4.5** at $5/million - multimodal with 200K context"
-- ✅ "Budget option: **Arcee Trinity Mini** at $0.04/million for text-only tasks"
-- ✅ Compare the latest models side-by-side with current pricing, test live performance, and get cutting-edge recommendations
-
-> *🤖 This section was written using Index9 MCP data - the AI assistant knew about Arcee Trinity Mini before it was cool!*
+- **Find models** by capability, price, or use case, with semantic search across 1200+ options
+- **Compare side-by-side** with current pricing, context windows, and specifications
+- **Get recommendations** tailored to your specific needs (coding, reasoning, vision, budget)
+- **Test performance** with live API calls before committing to a model
 
 ## Quick Start
 
@@ -59,60 +47,9 @@ Open VS Code Settings → MCP Servers → Add Server
 }
 ```
 
-### Other MCP Clients
+### Other Clients
 
-#### Claude Desktop
-
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "index9": {
-      "command": "npx",
-      "args": ["-y", "@index9/mcp"]
-    }
-  }
-}
-```
-
-#### Claude Code
-
-Run in terminal:
-
-```bash
-claude mcp add index9 -- npx -y @index9/mcp
-```
-
-#### Windsurf
-
-Add to Windsurf MCP config file
-
-```json
-{
-  "mcpServers": {
-    "index9": {
-      "command": "npx",
-      "args": ["-y", "@index9/mcp"]
-    }
-  }
-}
-```
-
-#### Cline
-
-Open Cline → MCP Servers → Edit Configuration
-
-```json
-{
-  "mcpServers": {
-    "index9": {
-      "command": "npx",
-      "args": ["-y", "@index9/mcp"]
-    }
-  }
-}
-```
+See [installation guide](https://www.index9.dev/#installation) for Claude Desktop, Claude Code, Windsurf, Cline, and 30+ other MCP clients.
 
 ## Configuration
 
