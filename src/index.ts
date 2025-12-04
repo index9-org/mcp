@@ -3,6 +3,9 @@
 import { logger } from "./logger.js";
 import { startMCPServer } from "./mcp.js";
 
+// Export types for library usage
+export * from "./types/index.js";
+
 async function main() {
   logger.info("Starting index9 MCP server");
   await startMCPServer();
