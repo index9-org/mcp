@@ -75,12 +75,3 @@ Data sourced from [OpenRouter](https://openrouter.ai) and [models.dev](https://m
 ## License
 
 MIT © [Index9](https://index9.dev)
-
-## Links
-
-- [🌐 Website](https://index9.dev) - AI model registry and testing platform
-- [🐛 Issues](https://github.com/index9-org/mcp/issues) - Report bugs or request features
-
-## Related
-
-- [Model Context Protocol](https://modelcontextprotocol.io/) - The protocol this server implements
