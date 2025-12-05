@@ -3,6 +3,8 @@
 [![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://badge.fury.io/js/@index9%2Fmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+[📦 **Install**](#quick-start) • [🐛 **Issues**](https://github.com/index9-org/mcp/issues)
+
 Real-time model intelligence for your AI assistant. Search 1200+ models, compare pricing and capabilities, test performance—all with current data, zero cost.
 
 ## What You Get
@@ -66,11 +68,19 @@ To enable live model testing, add your OpenRouter API key from [openrouter.ai/ke
 - **`recommend_model`** - AI-powered recommendations for your use case
 - **`test_model`** - Live API testing with latency and cost estimates (requires API key)
 
+## Data Sources
+
+Data sourced from [OpenRouter](https://openrouter.ai) and [models.dev](https://models.dev).
+
 ## License
 
 MIT © [Index9](https://index9.dev)
 
+## Links
+
+- [🌐 Website](https://index9.dev) - AI model registry and testing platform
+- [🐛 Issues](https://github.com/index9-org/mcp/issues) - Report bugs or request features
+
 ## Related
 
-- [Index9](https://index9.dev) - AI model registry and testing platform
 - [Model Context Protocol](https://modelcontextprotocol.io/) - The protocol this server implements

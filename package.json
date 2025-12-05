@@ -45,7 +45,7 @@
     "publish:prod": "pnpm publish --tag latest"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.24.2",
+    "@modelcontextprotocol/sdk": "^1.24.3",
     "axios": "^1.13.2",
     "pino": "^10.1.0",
     "zod": "^4.1.13"
