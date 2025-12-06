@@ -1,7 +1,7 @@
 {
   "name": "@index9/mcp",
   "mcpName": "io.github.index9-org/mcp",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Real-time model intelligence for your AI assistant.",
   "keywords": [
     "mcp",
