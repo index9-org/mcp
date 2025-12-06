@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.index9-org/mcp",
+  "version": "1.0.6",
+  "description": "Real-time model intelligence for your AI assistant.",
+  "repository": {
+    "url": "https://github.com/index9-org/mcp",
+    "source": "github"
+  },
+  "tags": [
+    "ai",
+    "llm",
+    "models",
+    "pricing",
+    "search",
+    "recommendation",
+    "index9",
+    "openrouter"
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@index9/mcp",
+      "version": "1.0.6",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "OPENROUTER_API_KEY",
+          "description": "Optional OpenRouter API key for live model testing.",
+          "format": "string",
+          "isSecret": true,
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

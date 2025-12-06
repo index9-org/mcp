@@ -33,6 +33,8 @@ Open Cursor Settings → MCP → Add new global MCP server
 }
 ```
 
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=index9&config=eyJjb21tYW5kIjoibnB4IC15IEBpbmRleDkvbWNwIn0%3D)
+
 ### VS Code
 
 Open VS Code Settings → MCP Servers → Add Server
