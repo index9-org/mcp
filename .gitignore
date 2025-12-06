@@ -35,3 +35,7 @@ yarn-error.log*
 # Temporary files
 *.tmp
 *.temp
+
+# MCP Registry Tokens
+.mcpregistry_github_token
+.mcpregistry_registry_token
