@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { logger } from "./logger.js";
+import { checkRateLimit } from "./utils/rateLimiter.js";
 import { listModelsTool } from "./tools/list_models.js";
 import { searchModelsTool } from "./tools/search_models.js";
 import { getModelTool } from "./tools/get_model.js";
@@ -37,14 +38,19 @@ export function createMCPServer() {
     {
       title: "List Models",
       description:
-        "List AI models with optional filters. Filter by: provider or owner (openai, anthropic, google, etc.), min_context (e.g. 100000), modality (text, vision, audio, video, image), max_price_per_m (USD per million tokens), supports_tool_calling (boolean), supports_json_mode (boolean), tokenizer (model family: GPT, Claude, Llama3), output_modality (text, image, embeddings). Returns pricing, context window, max output tokens, input_modalities array, output_modalities array, capabilities (vision, audio, tool_calling, json_mode), and architecture (tokenizer family) for each model.",
+        "Find AI models using exact filters like provider (openai, anthropic), context window (min 100000), pricing (max $1/M tokens), modality (vision, audio), and capabilities (tool_calling, json_mode). Best when you know specific technical requirements. Returns up to 100 models with pricing, context windows, and capabilities. NOT for natural language search (use search_models) or recommendations (use recommend_model).",
       inputSchema: listModelsSchema,
     },
     async (input) => {
+      if (!checkRateLimit("list_models")) {
+        logger.warn({ tool: "list_models" }, "Rate limit exceeded");
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+
       try {
         const result = await listModelsTool(input);
         return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
@@ -60,14 +66,19 @@ export function createMCPServer() {
     {
       title: "Search Models",
       description:
-        'Semantic search across 1000+ AI models using natural language queries. Uses vector embeddings (semantic search) combined with fuzzy text matching to find relevant models. Examples: "fast cheap model for code generation", "vision model under $1 per million tokens", "best reasoning model with large context". Returns models ranked by similarity score (0-1, default threshold 0.5) with descriptions, pricing, context window, and capabilities (vision, tool_calling).',
+        "Search 1000+ AI models using natural language queries like 'fast cheap model for code generation' or 'vision model under $1 per million tokens'. Uses semantic search + fuzzy matching to find relevant models. Returns models ranked by relevance (0-1 similarity score) with descriptions, pricing, and capabilities. Perfect for discovery when you can't specify exact technical filters.",
       inputSchema: searchModelsSchema,
     },
     async (input) => {
+      if (!checkRateLimit("search_models")) {
+        logger.warn({ tool: "search_models" }, "Rate limit exceeded");
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+
       try {
         const result = await searchModelsTool(input);
         return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
@@ -83,14 +94,19 @@ export function createMCPServer() {
     {
       title: "Get Model",
       description:
-        "Get complete details for a specific model by ID. Returns: description, context window, max output tokens, pricing (input/output per million tokens), extended pricing (image, audio, web_search, cache_read, cache_write), capabilities (vision, audio, function_calling, tool_calling, json_mode, custom), supported_parameters, input/output modalities, architecture (tokenizer, instruct_type), is_moderated, per_request_limits, and deployments. If exact match fails, semantic search may be used to find similar models.",
+        "Get complete details for a specific AI model by ID, including pricing (input/output/cache), capabilities (vision, tool_calling), context window, supported parameters, and deployment info. The most detailed view - use this after finding candidates with other tools. Returns extended pricing for images, audio, and caching. Falls back to semantic search if exact ID not found.",
       inputSchema: getModelSchema,
     },
     async (input) => {
+      if (!checkRateLimit("get_model")) {
+        logger.warn({ tool: "get_model" }, "Rate limit exceeded");
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+
       try {
         const result = await getModelTool(input);
         return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
@@ -106,18 +122,23 @@ export function createMCPServer() {
     {
       title: "Compare Models",
       description:
-        "Compare 2-10 models side-by-side. Returns unified view of: context windows, max output tokens, pricing (input/output), and capabilities (vision, tool_calling, custom). Includes not_found array for any model IDs that couldn't be located. Useful for making final selection between candidate models.",
+        "Compare 2-10 AI models side-by-side with unified pricing, context windows, and capabilities. Perfect for final decisions between shortlisted candidates. Shows pricing, context, and features in comparable format. Returns 'not_found' for invalid model IDs. Use after narrowing options with search/recommend tools.",
       inputSchema: compareModelsSchema,
     },
     async (input) => {
+      if (!checkRateLimit("compare_models")) {
+        logger.warn({ tool: "compare_models" }, "Rate limit exceeded");
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+
+      const model_ids = Array.from(new Set((input.model_ids as string[]) || []));
       try {
-        const model_ids = Array.from(new Set((input.model_ids as string[]) || []));
         if (model_ids.length < 2) {
           throw new Error("At least 2 unique model IDs are required");
         }
         const result = await compareModelsTool({ model_ids });
         return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
@@ -133,14 +154,19 @@ export function createMCPServer() {
     {
       title: "Recommend Model",
       description:
-        "Get ranked model recommendations for a use case. Describe what you're building (e.g. 'coding assistant', 'customer support chatbot', 'RAG pipeline'). Optionally set max_price_per_m, min_context, and required_capabilities (vision, tool_calling, audio, video). Returns scored recommendations (higher score = better match) optimized for your requirements with context window and pricing.",
+        "Get AI-powered recommendations for your specific use case like 'coding assistant', 'customer support chatbot', or 'RAG pipeline'. Optionally set budget ($/M tokens), context requirements, and needed capabilities (vision, tool_calling). Returns up to 20 ranked models with scores, pricing, and context windows. Best for new projects or when you want AI to optimize tradeoffs.",
       inputSchema: recommendModelSchema,
     },
     async (input) => {
+      if (!checkRateLimit("recommend_model")) {
+        logger.warn({ tool: "recommend_model" }, "Rate limit exceeded");
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+
       try {
         const result = await recommendModelTool(input);
         return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
@@ -156,12 +182,18 @@ export function createMCPServer() {
     {
       title: "Test Model",
       description:
-        "Run live tests against 1-5 models via OpenRouter API. **Requires OPEN_ROUTER_API_KEY environment variable** - set this in your MCP client configuration to enable. Test types: 'quick' (basic math), 'code' (Python function), 'reasoning' (logic puzzle), 'instruction' (follow formatting), 'tool_calling' (verify tool use works). Returns latency, output, token usage, cost estimates, and for tool_calling tests: tool_calls_detected boolean. Use to validate models before committing. Charges are billed directly to your OpenRouter account. Get your API key from: https://openrouter.ai/keys",
+        "⚠️ REQUIRES OPEN_ROUTER_API_KEY - Test 1-5 AI models with real API calls to check latency, performance, and tool calling. Shows actual costs and behavior before you commit. Test types: quick math, code generation, reasoning, instruction following, tool calling. Bills charged to your OpenRouter account. Get API key at https://openrouter.ai/keys",
       inputSchema: testModelSchema,
     },
     async (input) => {
+      if (!checkRateLimit("test_model")) {
+        logger.warn({ tool: "test_model" }, "Rate limit exceeded");
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+
       try {
         if (!OPEN_ROUTER_API_KEY) {
+          logger.warn({ tool: "test_model" }, "Missing OpenRouter API key");
           return {
             content: [
               {
@@ -172,9 +204,10 @@ export function createMCPServer() {
             isError: true,
           };
         }
+
         const result = await testModelTool(input);
         return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
+          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
@@ -189,14 +222,19 @@ export function createMCPServer() {
 }
 
 export async function startMCPServer() {
-  logger.info("Starting MCP server with stdio transport");
+  // Minimal startup logging to avoid stdio interference
+  if (process.env.DEBUG_MCP === "true") {
+    logger.info("Starting MCP server with stdio transport");
+  }
 
   const server = createMCPServer();
   const transport = new StdioServerTransport();
 
   await server.connect(transport);
 
-  logger.info("MCP server ready - awaiting requests");
+  if (process.env.DEBUG_MCP === "true") {
+    logger.info("MCP server ready - awaiting requests");
+  }
 
   process.on("SIGINT", async () => {
     logger.info("Shutting down MCP server");

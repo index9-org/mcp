@@ -7,7 +7,9 @@ import { startMCPServer } from "./mcp.js";
 export * from "./types/index.js";
 
 async function main() {
-  logger.info("Starting index9 MCP server");
+  if (process.env.DEBUG_MCP === "true") {
+    logger.info("Starting index9 MCP server");
+  }
   await startMCPServer();
 }
 

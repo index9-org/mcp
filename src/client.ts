@@ -1,5 +1,5 @@
 import axios, { type AxiosError } from "axios";
-import { API_URL } from "./config.js";
+import { API_URL, API_TIMEOUT, TEST_MODEL_TIMEOUT } from "./config.js";
 import type {
   ListModelsResponse,
   GetModelResponse,
@@ -10,26 +10,30 @@ import type {
   ListModelsQueryParams,
 } from "./types/index.js";
 
-const client = axios.create({
-  baseURL: API_URL,
-  timeout: 30000,
-});
+const createAxiosClient = (timeout: number) => {
+  const client = axios.create({ baseURL: API_URL, timeout });
 
-client.interceptors.response.use(
-  (res) => res,
-  (error: AxiosError<{ message?: string }>) => {
-    if (error.response?.status === 404) {
-      const message = error.response?.data?.message || "Resource not found";
+  client.interceptors.response.use(
+    (res) => res,
+    (error: AxiosError<{ message?: string }>) => {
+      if (error.response?.status === 404) {
+        const message = error.response?.data?.message || "Resource not found";
+        throw new Error(message);
+      }
+      const message =
+        error.response?.data?.message ||
+        (error.code === "ECONNABORTED" ? `Request timeout` : null) ||
+        (error.code === "ECONNREFUSED" ? `Unable to connect to API server` : null) ||
+        error.message;
       throw new Error(message);
-    }
-    const message =
-      error.response?.data?.message ||
-      (error.code === "ECONNABORTED" ? `Request timeout` : null) ||
-      (error.code === "ECONNREFUSED" ? `Unable to connect to API server` : null) ||
-      error.message;
-    throw new Error(message);
-  },
-);
+    },
+  );
+
+  return client;
+};
+
+const client = createAxiosClient(API_TIMEOUT);
+const testClient = createAxiosClient(TEST_MODEL_TIMEOUT); // test operations with longer timeout
 
 export async function listModels(params: ListModelsQueryParams): Promise<ListModelsResponse> {
   const { data } = await client.get<ListModelsResponse>("/models", { params });
@@ -46,7 +50,11 @@ export async function searchModels(
   limit?: number,
   threshold?: number,
 ): Promise<SearchModelsResponse> {
-  const { data } = await client.post<SearchModelsResponse>("/search", { query, limit, threshold });
+  const { data } = await client.post<SearchModelsResponse>("/search", {
+    query,
+    limit,
+    threshold,
+  });
   return data;
 }
 
@@ -79,7 +87,7 @@ export async function testModel(
   testType?: "quick" | "code" | "reasoning" | "instruction" | "tool_calling",
   openRouterApiKey?: string | null,
 ): Promise<TestModelResponse> {
-  const { data } = await client.post<TestModelResponse>("/test", {
+  const { data } = await testClient.post<TestModelResponse>("/test", {
     model_ids: modelIds,
     test_type: testType,
     open_router_api_key: openRouterApiKey || undefined,
