@@ -36,9 +36,9 @@ export function createMCPServer() {
   server.registerTool(
     "list_models",
     {
-      title: "List Models",
+      title: "List AI Models",
       description:
-        "Find AI models using exact filters like provider (openai, anthropic), context window (min 100000), pricing (max $1/M tokens), modality (vision, audio), and capabilities (tool_calling, json_mode). Best when you know specific technical requirements. Returns up to 100 models with pricing, context windows, and capabilities. NOT for natural language search (use search_models) or recommendations (use recommend_model).",
+        "Filter AI models by exact criteria (provider, context window, pricing, capabilities). Returns up to 100 models with full details. Use search_models for natural language queries.",
       inputSchema: listModelsSchema,
     },
     async (input) => {
@@ -64,9 +64,9 @@ export function createMCPServer() {
   server.registerTool(
     "search_models",
     {
-      title: "Search Models",
+      title: "Search AI Models",
       description:
-        "Search 1000+ AI models using natural language queries like 'fast cheap model for code generation' or 'vision model under $1 per million tokens'. Uses semantic search + fuzzy matching to find relevant models. Returns models ranked by relevance (0-1 similarity score) with descriptions, pricing, and capabilities. Perfect for discovery when you can't specify exact technical filters.",
+        "Search 1000+ AI models using natural language (e.g., 'fast cheap coding model'). Uses semantic search and fuzzy matching. Returns ranked results with similarity scores.",
       inputSchema: searchModelsSchema,
     },
     async (input) => {
@@ -92,9 +92,9 @@ export function createMCPServer() {
   server.registerTool(
     "get_model",
     {
-      title: "Get Model",
+      title: "Get Model Details",
       description:
-        "Get complete details for a specific AI model by ID, including pricing (input/output/cache), capabilities (vision, tool_calling), context window, supported parameters, and deployment info. The most detailed view - use this after finding candidates with other tools. Returns extended pricing for images, audio, and caching. Falls back to semantic search if exact ID not found.",
+        "Get complete details for a specific model by ID: pricing, capabilities, context window, parameters, and deployment info. Most detailed view available.",
       inputSchema: getModelSchema,
     },
     async (input) => {
@@ -120,9 +120,9 @@ export function createMCPServer() {
   server.registerTool(
     "compare_models",
     {
-      title: "Compare Models",
+      title: "Compare AI Models",
       description:
-        "Compare 2-10 AI models side-by-side with unified pricing, context windows, and capabilities. Perfect for final decisions between shortlisted candidates. Shows pricing, context, and features in comparable format. Returns 'not_found' for invalid model IDs. Use after narrowing options with search/recommend tools.",
+        "Compare 2-10 AI models side-by-side with unified pricing, context windows, and capabilities. Perfect for final selection decisions.",
       inputSchema: compareModelsSchema,
     },
     async (input) => {
@@ -152,9 +152,9 @@ export function createMCPServer() {
   server.registerTool(
     "recommend_model",
     {
-      title: "Recommend Model",
+      title: "Get Model Recommendations",
       description:
-        "Get AI-powered recommendations for your specific use case like 'coding assistant', 'customer support chatbot', or 'RAG pipeline'. Optionally set budget ($/M tokens), context requirements, and needed capabilities (vision, tool_calling). Returns up to 20 ranked models with scores, pricing, and context windows. Best for new projects or when you want AI to optimize tradeoffs.",
+        "Get AI-powered model recommendations for your use case (e.g., 'coding assistant'). Optionally specify budget, context needs, and required capabilities. Returns ranked suggestions.",
       inputSchema: recommendModelSchema,
     },
     async (input) => {
@@ -180,9 +180,9 @@ export function createMCPServer() {
   server.registerTool(
     "test_model",
     {
-      title: "Test Model",
+      title: "Test AI Models",
       description:
-        "⚠️ REQUIRES OPEN_ROUTER_API_KEY - Test 1-5 AI models with real API calls to check latency, performance, and tool calling. Shows actual costs and behavior before you commit. Test types: quick math, code generation, reasoning, instruction following, tool calling. Bills charged to your OpenRouter account. Get API key at https://openrouter.ai/keys",
+        "Test 1-5 models with real API calls via OpenRouter to check latency, performance, and tool calling. Shows actual costs and behavior. Test types: quick (math), code, reasoning, instruction, tool_calling.",
       inputSchema: testModelSchema,
     },
     async (input) => {
@@ -198,7 +198,7 @@ export function createMCPServer() {
             content: [
               {
                 type: "text",
-                text: "Error: OPEN_ROUTER_API_KEY is required to use test_model. This tool allows you to run live tests against AI models via OpenRouter API.\n\nTo use this tool:\n1. Get your API key from https://openrouter.ai/keys\n2. Add OPEN_ROUTER_API_KEY to your MCP client configuration (e.g., in Cursor settings or Claude Desktop config)\n3. Restart your MCP client\n\nCharges are billed directly to your OpenRouter account.",
+                text: "Error: OPEN_ROUTER_API_KEY is required to use test_model. This tool runs live tests against AI models via OpenRouter API.\n\nTo use this tool:\n1. Get your API key from https://openrouter.ai/keys\n2. Add OPEN_ROUTER_API_KEY to your MCP client configuration (e.g., in Cursor settings or Claude Desktop config)\n3. Restart your MCP client\n\nCharges are billed directly to your OpenRouter account.",
               },
             ],
             isError: true,

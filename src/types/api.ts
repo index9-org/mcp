@@ -37,10 +37,11 @@ export interface DeploymentPricing {
   output: number | null;
 }
 
-export interface Benchmark {
-  dataset: string;
-  score: number;
-  percentile: number | null;
+export interface Deployment {
+  platform: string;
+  model_id: string;
+  is_available: boolean;
+  pricing: ModelPricing;
 }
 
 export interface GetModelCapabilities extends Omit<ModelCapabilities, "audio"> {
@@ -69,13 +70,7 @@ export interface GetModelResponse {
   output_modalities: string[];
   architecture: ModelArchitecture;
   per_request_limits: PerRequestLimits | null;
-  deployments: Array<{
-    provider: string;
-    external_id: string | null;
-    is_available: boolean;
-    pricing: DeploymentPricing;
-  }>;
-  benchmarks: Benchmark[];
+  deployments: Deployment[];
 }
 
 // Search Models
@@ -122,7 +117,7 @@ export interface CompareModelsResponse {
     limits: ModelLimits;
     pricing: ModelPricing;
     capabilities: CompareModelCapabilities;
-    benchmarks: Benchmark[];
+    deployments: Deployment[];
   }>;
   not_found?: string[];
   suggestions?: Record<string, Array<{ id: string; name: string; similarity: number }>>;

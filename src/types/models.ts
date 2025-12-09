@@ -2,6 +2,8 @@
  * Model Types - Normalized model interface for real-time provider federation
  */
 
+import type { Deployment } from "./api";
+
 export interface ModelPricing {
   input: number | null;
   output: number | null;
@@ -55,6 +57,7 @@ export interface NormalizedModel {
   extended_pricing: ExtendedPricing | null;
   is_moderated: boolean;
   per_request_limits: PerRequestLimits | null;
+  deployments: Deployment[];
 }
 
 export interface ProviderAdapter {
