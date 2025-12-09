@@ -66,7 +66,7 @@ export function createMCPServer() {
     {
       title: "Search AI Models",
       description:
-        "Search 1000+ AI models using natural language (e.g., 'fast cheap coding model'). Uses semantic search and fuzzy matching. Returns ranked results with similarity scores.",
+        "Search 1200+ AI models using natural language (e.g., 'fast cheap coding model'). Uses semantic search and fuzzy matching. Returns ranked results with similarity scores.",
       inputSchema: searchModelsSchema,
     },
     async (input) => {

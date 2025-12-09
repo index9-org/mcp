@@ -72,7 +72,7 @@ To enable live model testing, add your OpenRouter API key from [openrouter.ai/ke
 
 ## Data Sources
 
-Data sourced from [OpenRouter](https://openrouter.ai) and [models.dev](https://models.dev).
+Data sourced from [OpenRouter](https://openrouter.ai) and [Models.dev](https://models.dev).
 
 ## License
 
