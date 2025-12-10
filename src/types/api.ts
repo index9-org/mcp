@@ -140,7 +140,12 @@ export interface RecommendModelResponse {
     score: number;
     context_window: number | null;
     pricing: ModelPricing;
+    confidence?: "high" | "medium" | "low";
+    matched_features?: string[];
+    pricing_available: boolean;
   }>;
+  suggestions?: string[];
+  warning?: string;
 }
 
 // Test Model

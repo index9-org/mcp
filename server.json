@@ -7,16 +7,7 @@
     "url": "https://github.com/index9-org/mcp",
     "source": "github"
   },
-  "tags": [
-    "ai",
-    "llm",
-    "models",
-    "pricing",
-    "search",
-    "recommendation",
-    "index9",
-    "openrouter"
-  ],
+  "tags": ["ai", "llm", "models", "pricing", "search", "recommendation", "index9", "openrouter"],
   "packages": [
     {
       "registryType": "npm",
