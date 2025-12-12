@@ -143,6 +143,7 @@ export interface RecommendModelResponse {
     confidence?: "high" | "medium" | "low";
     matched_features?: string[];
     pricing_available: boolean;
+    release_date: string | null;
   }>;
   suggestions?: string[];
   warning?: string;
