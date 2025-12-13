@@ -40,9 +40,12 @@ Call this tool first to discover model IDs, unless the user provides one (format
 
 Parameters:
 - query: Natural language search (e.g., 'fast cheap coding model')
-- provider, min_context, max_price_per_m, capabilities: Exact filters
+- provider: Filter by provider(s). Comma-separated for multiple (e.g., 'openai,anthropic')
+- min_context, max_context, max_price_per_m, capabilities: Exact filters
 - sort_by: 'relevance' (default), 'price_asc', 'price_desc', 'date_desc', 'context_desc'
 - limit, offset: Pagination
+
+Scores: Results include a 'score' field (0-150+). Higher = more relevant. Combines semantic similarity, capability matching, and model quality signals. Use for relative ranking, not absolute measurement.
 
 Use model IDs from results with get_model for full specs or test_model for live testing.`,
       inputSchema: findModelsSchema,

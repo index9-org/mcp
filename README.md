@@ -13,9 +13,22 @@ MCP server for searching and testing AI models. Data from [OpenRouter](https://o
 
 ### Cursor
 
-Open **Cursor Settings** → **MCP**
+Open **Cursor Settings** → **MCP** → **Add new global MCP server**
 
 [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=index9&config=eyJjb21tYW5kIjoibnB4IC15IEBpbmRleDkvbWNwIn0%3D)
+
+Or add manually:
+
+```json
+{
+  "mcpServers": {
+    "index9": {
+      "command": "npx",
+      "args": ["-y", "@index9/mcp"]
+    }
+  }
+}
+```
 
 ### VS Code
 
@@ -74,6 +87,16 @@ To use the **test_model** tool (for running live API calls), you must provide an
 
 _Your key is never stored. It is only used to make ephemeral requests to OpenRouter for testing purposes._
 
+### CLI Tools (Claude Code, etc.)
+
+For CLI-based MCP clients, set the environment variable before running:
+
+```bash
+export OPENROUTER_API_KEY="sk-..."
+```
+
+Or add it to your shell profile (`~/.zshrc`, `~/.bashrc`) for persistence.
+
 ## Tools
 
 | Tool          | Description                                                                                                                          | Config Required      |
@@ -90,6 +113,17 @@ Ask your AI assistant natural questions to find models:
 - "What are the best models for coding under $1 per million tokens?"
 - "Compare the specs of gpt-4o and claude-3-5-sonnet"
 - "Test the latency of haiku vs gemini-flash with a simple 'hello world' prompt"
+
+## Tip: Add an Auto-Invoke Rule
+
+For best results, add a rule so your AI assistant automatically uses index9 when answering model questions:
+
+```text
+When choosing AI models or comparing pricing/capabilities, use index9 MCP tools
+to get current data instead of relying on training knowledge.
+```
+
+Add this to your client's rule system: Cursor Settings → Rules, `.windsurfrules`, `CLAUDE.md`, etc.
 
 ## License
 

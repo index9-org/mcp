@@ -15,7 +15,7 @@ export const findModelsSchema = z.object({
   provider: z
     .string()
     .describe(
-      "Filter by exact provider name (e.g., 'openai', 'anthropic', 'google', 'meta'). Case-sensitive. Use find_models without filters first to discover available providers.",
+      "Filter by provider name(s). Comma-separated for multiple (e.g., 'openai,anthropic'). Case-insensitive.",
     )
     .optional(),
   min_context: z

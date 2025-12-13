@@ -1,7 +1,7 @@
 {
   "name": "@index9/mcp",
   "mcpName": "io.github.index9-org/mcp",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Live Model Registry and performance testing for your AI assistant. Sourced from OpenRouter.",
   "keywords": [
     "mcp",
