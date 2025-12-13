@@ -9,5 +9,7 @@ export async function testModelTool(input: TestModelInput) {
     OPEN_ROUTER_API_KEY,
     input.prompt,
     input.max_tokens,
+    input.temperature,
+    input.system_prompt,
   );
 }

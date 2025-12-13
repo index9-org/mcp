@@ -97,6 +97,7 @@ export interface FindModelsRequest {
   query?: string;
   provider?: string;
   min_context?: number;
+  max_context?: number;
   max_price_per_m?: number;
   capabilities?: string[];
   sort_by?: "relevance" | "price_asc" | "price_desc" | "date_desc" | "context_desc";
@@ -125,6 +126,10 @@ export interface FindModelsResponse {
 export interface TestModelRequest {
   model_ids: string[];
   test_type?: "quick" | "code" | "reasoning" | "instruction" | "tool_calling";
+  custom_prompt?: string;
+  max_tokens?: number;
+  temperature?: number;
+  system_prompt?: string;
 }
 
 export interface TokensUsed {

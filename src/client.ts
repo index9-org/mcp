@@ -48,6 +48,8 @@ export async function testModel(
   openRouterApiKey?: string | null,
   prompt?: string,
   maxTokens?: number,
+  temperature?: number,
+  systemPrompt?: string,
 ): Promise<TestModelResponse> {
   const { data } = await testClient.post<TestModelResponse>("/test", {
     model_ids: modelIds,
@@ -55,6 +57,8 @@ export async function testModel(
     custom_prompt: prompt,
     open_router_api_key: openRouterApiKey || undefined,
     max_tokens: maxTokens,
+    temperature,
+    system_prompt: systemPrompt,
   });
   return data;
 }

@@ -25,6 +25,13 @@ export const findModelsSchema = z.object({
       "Minimum context window size in tokens (e.g., 8192, 32000, 128000). Filters out models with smaller context windows. Common values: 4096 (small), 32000 (medium), 128000+ (large).",
     )
     .optional(),
+  max_context: z
+    .number()
+    .min(0)
+    .describe(
+      "Maximum context window size in tokens. Filters out models with larger context windows. Use to find smaller, faster models.",
+    )
+    .optional(),
   max_price_per_m: z
     .number()
     .min(0)
@@ -106,6 +113,21 @@ export const testModelSchema = z.object({
     .default(1000)
     .describe(
       "Maximum tokens for model response (1-8192). Higher values allow longer outputs but increase cost and latency. Defaults to 1000. Use 100-500 for quick tests, 1000-2000 for code/reasoning, 4000+ for long-form content.",
+    )
+    .optional(),
+  temperature: z
+    .number()
+    .min(0)
+    .max(2)
+    .describe(
+      "Sampling temperature (0-2). Lower values are more deterministic, higher values more creative. Defaults to 0.7.",
+    )
+    .optional(),
+  system_prompt: z
+    .string()
+    .max(4000)
+    .describe(
+      "System message to set model behavior. Example: 'You are a helpful coding assistant.'",
     )
     .optional(),
 });
