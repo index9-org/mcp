@@ -5,9 +5,7 @@
 
 [Install](#quick-start) • [Issues](https://github.com/index9-org/mcp/issues)
 
-A live registry of AI models. Use it to find models by capability (price, context, vision), or install the MCP server to let your AI assistant search for you.
-
-Data sourced real-time from [OpenRouter](https://openrouter.ai).
+MCP server for searching and testing AI models. Data from [OpenRouter](https://openrouter.ai).
 
 ## Quick Start
 
