@@ -5,20 +5,17 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { logger } from "./logger.js";
 import { checkRateLimit } from "./utils/rateLimiter.js";
-import { listModelsTool } from "./tools/list_models.js";
-import { searchModelsTool } from "./tools/search_models.js";
+import { findModelsTool } from "./tools/find_models.js";
 import { getModelTool } from "./tools/get_model.js";
-import { compareModelsTool } from "./tools/compare_models.js";
-import { recommendModelTool } from "./tools/recommend_model.js";
 import { testModelTool } from "./tools/test_model.js";
 import { OPEN_ROUTER_API_KEY } from "./config.js";
 import {
-  listModelsSchema,
-  searchModelsSchema,
+  findModelsSchema,
   getModelSchema,
-  compareModelsSchema,
-  recommendModelSchema,
   testModelSchema,
+  findModelsOutputSchema,
+  getModelOutputSchema,
+  testModelOutputSchema,
 } from "./schemas.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,56 +31,59 @@ export function createMCPServer() {
   });
 
   server.registerTool(
-    "list_models",
+    "find_models",
     {
-      title: "List AI Models",
-      description:
-        "Filter AI models by exact criteria (provider, context window, pricing, capabilities). Returns up to 100 models with full details. Use search_models for natural language queries.",
-      inputSchema: listModelsSchema,
+      title: "Find AI Models",
+      description: `Search and filter 300+ AI models using natural language queries or precise criteria. Returns ranked results with pricing, context windows, and capabilities.
+
+You MUST call this function first to discover model IDs needed by 'get_model' and 'test_model' UNLESS the user explicitly provides a model ID in the format 'provider/model-name' (e.g., 'openai/gpt-4o', 'anthropic/claude-3-sonnet').
+
+Usage Strategy:
+1. For exploratory searches, use natural language queries (e.g., 'fast cheap coding model', 'vision model with 128k context')
+2. For precise filtering, combine filters (provider, min_context, max_price_per_m, capabilities)
+3. Use semantic search when the user's intent is clear but specific criteria are vague
+4. Use exact filters when the user specifies precise requirements (e.g., 'at least 128k context', 'under $1 per million tokens')
+
+Selection Process:
+1. Analyze the query to understand what model characteristics the user needs
+2. Return the most relevant matches based on:
+   - Semantic relevance to the query (when using natural language)
+   - Price constraints (when specified)
+   - Context window requirements (when specified)
+   - Required capabilities (vision, audio, tool_calling, json_mode, video)
+   - Provider preference (when specified)
+3. Sort results by relevance (default), price, context size, or release date as appropriate
+
+Response Format:
+- Each result includes: model ID (format: 'provider/model-name'), name, description, pricing (per million tokens), context window, capabilities, and relevance score
+- Use the model ID from results to call 'get_model' for full specifications
+- Use the model ID from results to call 'test_model' for performance testing
+- If multiple good matches exist, present top results and explain why they match
+- If no matches exist, suggest relaxing filters or trying a different query
+
+Best Practices:
+- Start with semantic search for broad exploration, then refine with filters
+- Use higher limit (20-50) for broad exploration, lower limit (5-10) for focused comparisons
+- Combine natural language query with filters for best results
+- Check 'total' count in response to determine if pagination is needed`,
+      inputSchema: findModelsSchema,
+      outputSchema: findModelsOutputSchema,
     },
     async (input) => {
-      if (!checkRateLimit("list_models")) {
-        logger.warn({ tool: "list_models" }, "Rate limit exceeded");
+      if (!checkRateLimit("find_models")) {
+        logger.warn({ tool: "find_models" }, "Rate limit exceeded");
         throw new Error("Rate limit exceeded. Please try again later.");
       }
 
       try {
-        const result = await listModelsTool(input);
+        const result = await findModelsTool(input);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
           structuredContent: result as unknown as Record<string, unknown>,
         };
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error({ tool: "list_models", error: errorMessage }, "Tool execution failed");
-        throw error;
-      }
-    },
-  );
-
-  server.registerTool(
-    "search_models",
-    {
-      title: "Search AI Models",
-      description:
-        "Search 1200+ AI models using natural language (e.g., 'fast cheap coding model'). Uses semantic search and fuzzy matching. Returns ranked results with similarity scores.",
-      inputSchema: searchModelsSchema,
-    },
-    async (input) => {
-      if (!checkRateLimit("search_models")) {
-        logger.warn({ tool: "search_models" }, "Rate limit exceeded");
-        throw new Error("Rate limit exceeded. Please try again later.");
-      }
-
-      try {
-        const result = await searchModelsTool(input);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-          structuredContent: result as unknown as Record<string, unknown>,
-        };
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error({ tool: "search_models", error: errorMessage }, "Tool execution failed");
+        logger.error({ tool: "find_models", error: errorMessage }, "Tool execution failed");
         throw error;
       }
     },
@@ -93,9 +93,40 @@ export function createMCPServer() {
     "get_model",
     {
       title: "Get Model Details",
-      description:
-        "Get complete details for a specific model by ID: pricing, capabilities, context window, parameters, and deployment info. Most detailed view available.",
+      description: `Fetch complete specifications for a specific model by ID. Returns comprehensive details including per-token pricing (input/output), context window limits, max output tokens, capabilities, architecture, training cutoff dates, and per-request limits.
+
+You MUST call this function after 'find_models' to get full details for selection or comparison, OR when the user explicitly provides a model ID in the format 'provider/model-name' (e.g., 'openai/gpt-4o', 'anthropic/claude-3-sonnet').
+
+When to Use:
+1. After 'find_models' - to get comprehensive specs for models that match search criteria
+2. With known model ID - when user specifies a model they want details about
+3. For comparison - to get detailed specs for multiple models side-by-side
+4. Before 'test_model' - to understand model capabilities before testing
+
+Information Provided:
+- Pricing: Per-token costs for input and output (in USD per million tokens)
+- Context Window: Maximum tokens the model can process
+- Max Output Tokens: Maximum tokens the model can generate
+- Capabilities: Vision, audio, tool_calling, json_mode, video support
+- Architecture: Tokenizer and instruction type
+- Training Cutoff: Knowledge cutoff date
+- Per-Request Limits: Maximum prompt and completion tokens per request
+- Extended Pricing: Image, audio, web search, cache, and other pricing details (when available)
+
+Response Format:
+- Returns complete model specification as structured JSON
+- Use pricing information to calculate costs for specific use cases
+- Use capabilities to determine if model supports required features
+- Use context window and max output tokens to plan prompt and response sizes
+- Returns 404 error if model ID not found - suggest using 'find_models' to discover valid IDs
+
+Best Practices:
+- Always verify model ID format is 'provider/model-name' (case-sensitive)
+- Use this tool to compare pricing and capabilities between models
+- Check per-request limits to ensure your use case fits within constraints
+- Review extended pricing for multimodal features if needed`,
       inputSchema: getModelSchema,
+      outputSchema: getModelOutputSchema,
     },
     async (input) => {
       if (!checkRateLimit("get_model")) {
@@ -118,72 +149,58 @@ export function createMCPServer() {
   );
 
   server.registerTool(
-    "compare_models",
-    {
-      title: "Compare AI Models",
-      description:
-        "Compare 2-10 AI models side-by-side with unified pricing, context windows, and capabilities. Perfect for final selection decisions.",
-      inputSchema: compareModelsSchema,
-    },
-    async (input) => {
-      if (!checkRateLimit("compare_models")) {
-        logger.warn({ tool: "compare_models" }, "Rate limit exceeded");
-        throw new Error("Rate limit exceeded. Please try again later.");
-      }
-
-      const model_ids = Array.from(new Set((input.model_ids as string[]) || []));
-      try {
-        if (model_ids.length < 2) {
-          throw new Error("At least 2 unique model IDs are required");
-        }
-        const result = await compareModelsTool({ model_ids });
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-          structuredContent: result as unknown as Record<string, unknown>,
-        };
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error({ tool: "compare_models", error: errorMessage }, "Tool execution failed");
-        throw error;
-      }
-    },
-  );
-
-  server.registerTool(
-    "recommend_model",
-    {
-      title: "Get Model Recommendations",
-      description:
-        "Get AI-powered model recommendations for your use case (e.g., 'coding assistant'). Optionally specify budget, context needs, and required capabilities. Returns ranked suggestions.",
-      inputSchema: recommendModelSchema,
-    },
-    async (input) => {
-      if (!checkRateLimit("recommend_model")) {
-        logger.warn({ tool: "recommend_model" }, "Rate limit exceeded");
-        throw new Error("Rate limit exceeded. Please try again later.");
-      }
-
-      try {
-        const result = await recommendModelTool(input);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-          structuredContent: result as unknown as Record<string, unknown>,
-        };
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error({ tool: "recommend_model", error: errorMessage }, "Tool execution failed");
-        throw error;
-      }
-    },
-  );
-
-  server.registerTool(
     "test_model",
     {
       title: "Test AI Models",
-      description:
-        "Test 1-5 models with real API calls via OpenRouter to check latency, performance, and tool calling. Shows actual costs and behavior. Test types: quick (math), code, reasoning, instruction, tool_calling.",
+      description: `Execute live API calls to 1-5 models simultaneously via OpenRouter. Compare real performance with custom prompts or preset test types. Returns actual output text, latency (ms), token usage, cost estimates (USD), and detected tool calls.
+
+You MUST call this function after 'find_models' or 'get_model' to validate model performance before final selection. Requires OPEN_ROUTER_API_KEY in MCP client configuration. Costs are billed to your OpenRouter account.
+
+When to Use:
+1. After narrowing down model candidates - to validate real-world performance
+2. For cost estimation - to measure actual token usage and costs for your use case
+3. For latency comparison - to compare response times across models
+4. For capability testing - to verify models handle specific tasks correctly
+5. Before production selection - to make data-driven decisions
+
+Test Type Selection:
+- 'quick': Simple math or basic tasks (fastest, lowest cost) - use for initial screening
+- 'code': Function generation or code completion - use when evaluating coding capabilities
+- 'reasoning': Logic puzzles or complex reasoning - use when evaluating reasoning abilities
+- 'instruction': Following complex multi-step directions - use when evaluating instruction following
+- 'tool_calling': Function calling capability - use when evaluating tool/function calling support
+- Custom prompt: Provide your own prompt for domain-specific testing
+
+Model Selection:
+- Test 1 model: For focused evaluation of a single candidate
+- Test 2-5 models: For side-by-side comparison (all models receive identical prompts)
+- Use model IDs from 'find_models' or 'get_model' results
+- Ensure model IDs are in format 'provider/model-name' (case-sensitive)
+
+Interpreting Results:
+- Latency (ms): Lower is better for real-time applications
+- Token Usage: Check prompt_tokens, completion_tokens, and total_tokens
+- Cost Estimates: Use input_cost and output_cost to calculate total cost
+- Output Quality: Review actual output text to assess quality
+- Tool Calls: Check tool_calls_detected and tool_calls array for function calling capability
+- Errors: Review error field if a model fails
+
+Cost Considerations:
+- Each test makes real API calls that cost money
+- Costs vary by model (check pricing via 'get_model' first)
+- Use 'quick' test type for initial screening to minimize costs
+- Use custom prompts with lower max_tokens for cost-effective testing
+- Costs are billed directly to the OpenRouter account associated with OPEN_ROUTER_API_KEY
+
+Best Practices:
+- Start with 'quick' test type to screen multiple models cost-effectively
+- Use preset test types that match your use case (code, reasoning, etc.)
+- Test 2-3 top candidates side-by-side for fair comparison
+- Use custom prompts that reflect your actual use case for most accurate results
+- Set appropriate max_tokens based on expected response length (100-500 for quick tests, 1000-2000 for code/reasoning, 4000+ for long-form)
+- Always verify OPEN_ROUTER_API_KEY is configured before calling this tool`,
       inputSchema: testModelSchema,
+      outputSchema: testModelOutputSchema,
     },
     async (input) => {
       if (!checkRateLimit("test_model")) {

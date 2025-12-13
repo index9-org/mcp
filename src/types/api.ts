@@ -8,7 +8,6 @@ import type {
   ModelCapabilities,
   ModelArchitecture,
   ExtendedPricing,
-  ModelLimits,
   PerRequestLimits,
 } from "./models.js";
 
@@ -32,19 +31,12 @@ export interface ListModelsResponse {
   }>;
 }
 
-export interface DeploymentPricing {
-  input: number | null;
-  output: number | null;
-}
-
-export interface Deployment {
-  platform: string;
-  model_id: string;
-  is_available: boolean;
-  pricing: ModelPricing;
-}
-
-export interface GetModelCapabilities extends Omit<ModelCapabilities, "audio"> {
+export interface GetModelCapabilities {
+  vision: boolean;
+  audio: boolean;
+  tool_calling: boolean;
+  json_mode: boolean;
+  video: boolean;
   function_calling: boolean;
   custom: string[];
 }
@@ -70,7 +62,6 @@ export interface GetModelResponse {
   output_modalities: string[];
   architecture: ModelArchitecture;
   per_request_limits: PerRequestLimits | null;
-  deployments: Deployment[];
 }
 
 // Search Models
@@ -82,7 +73,10 @@ export interface SearchModelsRequest {
 
 export interface SearchModelCapabilities {
   vision: boolean | null;
+  audio: boolean | null;
   tool_calling: boolean | null;
+  json_mode: boolean | null;
+  video: boolean | null;
 }
 
 export interface SearchModelsResponse {
@@ -98,55 +92,33 @@ export interface SearchModelsResponse {
   }>;
 }
 
-// Compare Models
-export interface CompareModelsRequest {
-  model_ids: string[];
-}
-
-export interface CompareModelCapabilities {
-  vision: boolean | null;
-  tool_calling: boolean | null;
-  custom: string[];
-}
-
-export interface CompareModelsResponse {
-  models: Array<{
-    id: string;
-    name: string;
-    provider: string;
-    limits: ModelLimits;
-    pricing: ModelPricing;
-    capabilities: CompareModelCapabilities;
-    deployments: Deployment[];
-  }>;
-  not_found?: string[];
-  suggestions?: Record<string, Array<{ id: string; name: string; similarity: number }>>;
-}
-
-// Recommend Model
-export interface RecommendModelRequest {
-  use_case: string;
-  max_price_per_m?: number;
+// Find Models (unified search + filter)
+export interface FindModelsRequest {
+  query?: string;
+  provider?: string;
   min_context?: number;
-  required_capabilities?: string[];
+  max_price_per_m?: number;
+  capabilities?: string[];
+  sort_by?: "relevance" | "price_asc" | "price_desc" | "date_desc" | "context_desc";
   limit?: number;
+  offset?: number;
 }
 
-export interface RecommendModelResponse {
-  use_case: string;
-  recommendations: Array<{
+export interface FindModelsResponse {
+  results: Array<{
     id: string;
     name: string;
+    description: string | null;
     score: number;
+    provider: string;
     context_window: number | null;
     pricing: ModelPricing;
-    confidence?: "high" | "medium" | "low";
+    capabilities: SearchModelCapabilities;
     matched_features?: string[];
-    pricing_available: boolean;
+    hugging_face_id?: string | null;
     release_date: string | null;
   }>;
-  suggestions?: string[];
-  warning?: string;
+  total?: number;
 }
 
 // Test Model
@@ -175,6 +147,10 @@ export interface TestModelResult {
   tokens_used: TokensUsed | null;
   cost_estimate: CostEstimate;
   tool_calls_detected?: boolean;
+  tool_calls?: Array<{
+    name: string;
+    arguments: Record<string, unknown>;
+  }>;
   error: string | null;
 }
 

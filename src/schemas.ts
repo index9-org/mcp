@@ -1,67 +1,65 @@
 import { z } from "zod";
 
 /**
- * List Models Tool Schema
- * Filters AI models using exact technical criteria
+ * Find Models Tool Schema
+ * Unified search and filter for AI models
  */
-export const listModelsSchema = z.object({
+export const findModelsSchema = z.object({
+  query: z
+    .string()
+    .max(500)
+    .describe(
+      "Natural language search query describing desired model characteristics (e.g., 'fastest coding model under $1', 'vision model with 128k context', 'cheapest tool-calling model'). Uses semantic search with fuzzy matching. Optional - omit to use filters only.",
+    )
+    .optional(),
   provider: z
     .string()
-    .describe("Filter by model provider (e.g., openai, anthropic, google)")
+    .describe(
+      "Filter by exact provider name (e.g., 'openai', 'anthropic', 'google', 'meta'). Case-sensitive. Use find_models without filters first to discover available providers.",
+    )
     .optional(),
-  owner: z.string().describe("Filter by model owner organization").optional(),
-  min_context: z.number().min(0).describe("Minimum context window size in tokens").optional(),
-  modality: z
-    .enum(["text", "vision", "audio", "video", "image"])
-    .describe("Primary input modality the model supports")
-    .optional(),
-  supports_tool_calling: z
-    .boolean()
-    .describe("Filter to models that support function/tool calling")
-    .optional(),
-  supports_json_mode: z
-    .boolean()
-    .describe("Filter to models with native JSON output mode")
-    .optional(),
-  tokenizer: z
-    .string()
-    .describe("Filter by tokenizer type (e.g., cl100k_base, tiktoken)")
-    .optional(),
-  output_modality: z
-    .enum(["text", "image", "embeddings"])
-    .describe("Type of output the model generates")
+  min_context: z
+    .number()
+    .min(0)
+    .describe(
+      "Minimum context window size in tokens (e.g., 8192, 32000, 128000). Filters out models with smaller context windows. Common values: 4096 (small), 32000 (medium), 128000+ (large).",
+    )
     .optional(),
   max_price_per_m: z
     .number()
     .min(0)
-    .describe("Maximum price per million tokens (combined input + output)")
-    .optional(),
-  limit: z.number().min(1).max(100).default(10).describe("Number of results to return (1-100)"),
-});
-
-/**
- * Search Models Tool Schema
- * Natural language semantic search across AI models
- */
-export const searchModelsSchema = z.object({
-  query: z
-    .string()
-    .min(1)
     .describe(
-      "Natural language query describing desired model characteristics (e.g., 'fast cheap code generation model')",
-    ),
+      "Maximum acceptable price per million input tokens in USD (e.g., 0.5 for $0.50/M tokens). Filters out more expensive models. Note: only considers input pricing for filtering.",
+    )
+    .optional(),
+  capabilities: z
+    .array(z.enum(["vision", "audio", "tool_calling", "json_mode", "video"]))
+    .describe(
+      "Required capabilities array - model must support ALL specified capabilities (AND logic). Examples: ['vision'] for image input, ['tool_calling', 'json_mode'] for structured outputs, ['vision', 'tool_calling'] for multimodal agents. Available: vision, audio, tool_calling, json_mode, video.",
+    )
+    .optional(),
+  sort_by: z
+    .enum(["relevance", "price_asc", "price_desc", "date_desc", "context_desc"])
+    .default("relevance")
+    .describe(
+      "Sort order for results. Options: 'relevance' (best semantic match, default), 'price_asc' (cheapest first by input price), 'price_desc' (most expensive first), 'date_desc' (newest models first), 'context_desc' (largest context window first). Defaults to 'relevance'.",
+    )
+    .optional(),
   limit: z
     .number()
     .min(1)
-    .max(50)
+    .max(100)
     .default(10)
-    .describe("Maximum number of results to return (1-50)"),
-  threshold: z
+    .describe(
+      "Maximum number of results to return (1-100). Defaults to 10. Use higher values (20-50) for broad exploration, lower values (5-10) for focused comparisons.",
+    ),
+  offset: z
     .number()
     .min(0)
-    .max(1)
-    .default(0.5)
-    .describe("Minimum similarity score for results (0-1, where 1 is exact match)"),
+    .default(0)
+    .describe(
+      "Number of results to skip for pagination (0-based). Defaults to 0. Example: offset=10 with limit=10 returns results 11-20. Use with 'total' in response for pagination.",
+    ),
 });
 
 /**
@@ -72,52 +70,9 @@ export const getModelSchema = z.object({
   model_id: z
     .string()
     .min(1)
-    .describe("Exact model identifier (e.g., 'openai/gpt-4', 'anthropic/claude-sonnet-4')"),
-});
-
-/**
- * Compare Models Tool Schema
- * Side-by-side comparison of multiple models
- */
-export const compareModelsSchema = z.object({
-  model_ids: z
-    .array(z.string())
-    .min(2)
-    .max(10)
-    .describe("Array of 2-10 model IDs to compare side-by-side"),
-});
-
-/**
- * Recommend Model Tool Schema
- * AI-powered model recommendations based on use case
- */
-export const recommendModelSchema = z.object({
-  use_case: z
-    .string()
-    .min(1)
     .describe(
-      "Description of your use case (e.g., 'coding assistant', 'customer support chatbot', 'RAG pipeline with long documents')",
+      "Exact model identifier in format 'provider/model-name' (e.g., 'openai/gpt-5.2', 'anthropic/claude-opus-4.5', 'google/gemini-2.5-flash-preview-09-2025'). Case-sensitive. Use find_models first to discover valid model IDs. Returns 404 if model not found.",
     ),
-  max_price_per_m: z
-    .number()
-    .min(0)
-    .describe("Budget constraint: maximum acceptable price per million tokens")
-    .optional(),
-  min_context: z
-    .number()
-    .min(0)
-    .describe("Minimum required context window size in tokens")
-    .optional(),
-  required_capabilities: z
-    .array(z.string())
-    .describe("Required model capabilities (e.g., ['tool_calling', 'vision', 'json_mode'])")
-    .optional(),
-  limit: z
-    .number()
-    .min(1)
-    .max(20)
-    .default(5)
-    .describe("Number of recommendations to return (1-20)"),
 });
 
 /**
@@ -129,19 +84,155 @@ export const testModelSchema = z.object({
     .array(z.string())
     .min(1)
     .max(5)
-    .describe("Array of 1-5 model IDs to test with real API calls"),
+    .describe(
+      "Array of 1-5 model IDs to test simultaneously in format 'provider/model-name' (e.g., ['openai/gpt-5.1-codex-max', 'anthropic/claude-haiku-4.5']). All models receive identical prompts. Use find_models or get_model first to identify model IDs.",
+    ),
   test_type: z
     .enum(["quick", "code", "reasoning", "instruction", "tool_calling"])
     .default("quick")
     .describe(
-      "Type of test to run: 'quick' (math), 'code' (generation), 'reasoning' (logic), 'instruction' (following), 'tool_calling' (function calls)",
+      "Preset test scenario. Ignored if custom 'prompt' provided. Options: 'quick' (simple math, fastest), 'code' (function generation), 'reasoning' (logic puzzle), 'instruction' (following complex directions), 'tool_calling' (function calling capability). Defaults to 'quick'.",
     ),
+  prompt: z
+    .string()
+    .describe(
+      "Custom user message to send to all models. Overrides 'test_type' when provided. Use for debugging specific issues, comparing exact outputs, or testing domain-specific prompts. Example: 'Write a Python function to validate email addresses'.",
+    )
+    .optional(),
+  max_tokens: z
+    .number()
+    .min(1)
+    .max(8192)
+    .default(1000)
+    .describe(
+      "Maximum tokens for model response (1-8192). Higher values allow longer outputs but increase cost and latency. Defaults to 1000. Use 100-500 for quick tests, 1000-2000 for code/reasoning, 4000+ for long-form content.",
+    )
+    .optional(),
+});
+
+/**
+ * Output Schemas for Tool Results
+ * Define expected return structures for better LLM understanding
+ */
+export const findModelsOutputSchema = z.object({
+  results: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      description: z.string().nullable(),
+      score: z.number(),
+      provider: z.string(),
+      context_window: z.number().nullable(),
+      pricing: z.object({
+        input: z.number().nullable(),
+        output: z.number().nullable(),
+      }),
+      capabilities: z.object({
+        vision: z.boolean().nullable(),
+        audio: z.boolean().nullable(),
+        tool_calling: z.boolean().nullable(),
+        json_mode: z.boolean().nullable(),
+        video: z.boolean().nullable(),
+      }),
+      matched_features: z.array(z.string()).optional(),
+      hugging_face_id: z.string().nullable().optional(),
+      release_date: z.string().nullable().optional(),
+    }),
+  ),
+  total: z.number().optional(),
+});
+
+export const getModelOutputSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  provider: z.string(),
+  description: z.string().nullable(),
+  family: z.string().nullable(),
+  version: z.string().nullable(),
+  release_date: z.string().nullable(),
+  limits: z.object({
+    context_window: z.number(),
+    max_output_tokens: z.number().nullable(),
+  }),
+  pricing: z.object({
+    input: z.number().nullable(),
+    output: z.number().nullable(),
+  }),
+  extended_pricing: z
+    .object({
+      image: z.number().nullable(),
+      audio: z.number().nullable(),
+      web_search: z.number().nullable(),
+      cache_read: z.number().nullable(),
+      cache_write: z.number().nullable(),
+      discount: z.number().nullable(),
+      internal_reasoning: z.number().nullable(),
+    })
+    .nullable(),
+  capabilities: z.object({
+    vision: z.boolean(),
+    audio: z.boolean(),
+    tool_calling: z.boolean(),
+    json_mode: z.boolean(),
+    video: z.boolean(),
+    function_calling: z.boolean(),
+    custom: z.array(z.string()),
+  }),
+  supported_parameters: z.array(z.string()),
+  is_moderated: z.boolean(),
+  input_modalities: z.array(z.string()),
+  output_modalities: z.array(z.string()),
+  architecture: z.object({
+    tokenizer: z.string().nullable(),
+    instruct_type: z.string().nullable(),
+  }),
+  per_request_limits: z
+    .object({
+      prompt_tokens: z.number().nullable(),
+      completion_tokens: z.number().nullable(),
+    })
+    .nullable(),
+});
+
+export const testModelOutputSchema = z.object({
+  test_type: z.string(),
+  prompt: z.string(),
+  results: z.array(
+    z.object({
+      model_id: z.string(),
+      model_name: z.string(),
+      latency_ms: z.number(),
+      output: z.string().nullable(),
+      tokens_used: z
+        .object({
+          prompt_tokens: z.number(),
+          completion_tokens: z.number(),
+          total_tokens: z.number(),
+        })
+        .nullable(),
+      cost_estimate: z.object({
+        input_cost: z.number().nullable(),
+        output_cost: z.number().nullable(),
+        total_cost: z.number().nullable(),
+      }),
+      tool_calls_detected: z.boolean().optional(),
+      tool_calls: z
+        .array(
+          z.object({
+            name: z.string(),
+            arguments: z.record(z.string(), z.unknown()),
+          }),
+        )
+        .optional(),
+      error: z.string().nullable(),
+    }),
+  ),
 });
 
 // Type exports for TypeScript inference
-export type ListModelsInput = z.infer<typeof listModelsSchema>;
-export type SearchModelsInput = z.infer<typeof searchModelsSchema>;
+export type FindModelsInput = z.infer<typeof findModelsSchema>;
 export type GetModelInput = z.infer<typeof getModelSchema>;
-export type CompareModelsInput = z.infer<typeof compareModelsSchema>;
-export type RecommendModelInput = z.infer<typeof recommendModelSchema>;
 export type TestModelInput = z.infer<typeof testModelSchema>;
+export type FindModelsOutput = z.infer<typeof findModelsOutputSchema>;
+export type GetModelOutput = z.infer<typeof getModelOutputSchema>;
+export type TestModelOutput = z.infer<typeof testModelOutputSchema>;

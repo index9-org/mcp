@@ -4,7 +4,7 @@ const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
 /**
  * Check if a tool request should be rate limited
- * @param toolName - The tool name (e.g., "list_models", "search_models")
+ * @param toolName - The tool name (e.g., "find_models", "get_model", "test_model")
  * @returns true if allowed, false if rate limited
  */
 export function checkRateLimit(toolName: string): boolean {

@@ -3,24 +3,43 @@
 [![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://badge.fury.io/js/@index9%2Fmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[📦 **Install**](#quick-start) • [🐛 **Issues**](https://github.com/index9-org/mcp/issues)
+[Install](#quick-start) • [Issues](https://github.com/index9-org/mcp/issues)
 
-Real-time model intelligence for your AI assistant. Search 1200+ models, compare pricing and capabilities, test performance—all with current data, zero cost.
+A live registry of AI models. Use it to find models by capability (price, context, vision), or install the MCP server to let your AI assistant search for you.
 
-## What You Get
-
-Your AI assistant gets live model intelligence for smarter recommendations:
-
-- **Search models** by capability, price, or modality across 1200+ options instantly
-- **Compare models** side-by-side with current pricing and context windows
-- **Get recommendations** tailored to your use case, budget, and requirements
-- **Test models** with real API calls to see latency and behavior before you commit
+Data sourced real-time from [OpenRouter](https://openrouter.ai).
 
 ## Quick Start
 
+**Zero Config:** Search and Lookup features work immediately after installation. No API keys required.
+
 ### Cursor
 
-Open Cursor Settings → MCP → Add new global MCP server
+Open **Cursor Settings** → **MCP**
+
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=index9&config=eyJjb21tYW5kIjoibnB4IC15IEBpbmRleDkvbWNwIn0%3D)
+
+### VS Code
+
+Add to your **MCP Servers** settings:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "index9": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@index9/mcp"]
+      }
+    }
+  }
+}
+```
+
+### Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -33,46 +52,46 @@ Open Cursor Settings → MCP → Add new global MCP server
 }
 ```
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=index9&config=eyJjb21tYW5kIjoibnB4IC15IEBpbmRleDkvbWNwIn0%3D)
+See [index9.dev](https://index9.dev/#installation) for Windsurf, Cline, and other clients.
 
-### VS Code
+## Configuration (Optional)
 
-Open VS Code Settings → MCP Servers → Add Server
+The **find_models** and **get_model** tools are free and require no configuration.
+
+To use the **test_model** tool (for running live API calls), you must provide an OpenRouter API key.
 
 ```json
-"mcp": {
-  "servers": {
+{
+  "mcpServers": {
     "index9": {
-      "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@index9/mcp"]
+      "args": ["-y", "@index9/mcp"],
+      "env": {
+        "OPENROUTER_API_KEY": "sk-..."
+      }
     }
   }
 }
 ```
 
-### Other Clients
+_Your key is never stored. It is only used to make ephemeral requests to OpenRouter for testing purposes._
 
-See [installation guide](https://www.index9.dev/#installation) for Claude Desktop, Claude Code, Windsurf, Cline, and 30+ other MCP clients.
+## Tools
 
-## Configuration
+| Tool          | Description                                                                                                                          | Config Required      |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
+| `find_models` | Search and filter 300+ AI models. Use natural language ("fast coding model") or strict filters for price, context, and capabilities. | None                 |
+| `get_model`   | Get complete technical specifications. Returns pricing, context windows, max output tokens, and capabilities for any model.          | None                 |
+| `test_model`  | Run live performance tests. Execute real API calls to multiple models simultaneously to compare latency, token usage, and costs.     | `OPENROUTER_API_KEY` |
 
-### Testing Models (Optional)
+## Usage Examples
 
-To enable live model testing, add your OpenRouter API key from [openrouter.ai/keys](https://openrouter.ai/keys) to your MCP config. Charges go directly to your OpenRouter account.
+Ask your AI assistant natural questions to find models:
 
-## Available Tools
-
-- **`list_models`** - Filter models by provider, context, pricing, capabilities, and modality
-- **`search_models`** - Natural language search across all models
-- **`get_model`** - Get complete model specs and details
-- **`compare_models`** - Side-by-side comparison of up to 10 models
-- **`recommend_model`** - AI-powered recommendations for your use case
-- **`test_model`** - Live API testing with latency and cost estimates (requires API key)
-
-## Data Sources
-
-Data sourced from [OpenRouter](https://openrouter.ai) and [Models.dev](https://models.dev).
+- "Find a cheap vision model with at least 128k context"
+- "What are the best models for coding under $1 per million tokens?"
+- "Compare the specs of gpt-4o and claude-3-5-sonnet"
+- "Test the latency of haiku vs gemini-flash with a simple 'hello world' prompt"
 
 ## License
 

@@ -1,8 +1,6 @@
 /**
- * Model Types - Normalized model interface for real-time provider federation
+ * Model Types - Normalized model interface for OpenRouter models
  */
-
-import type { Deployment } from "./api";
 
 export interface ModelPricing {
   input: number | null;
@@ -28,11 +26,7 @@ export interface ExtendedPricing {
   cache_read: number | null;
   cache_write: number | null;
   discount: number | null;
-}
-
-export interface ModelLimits {
-  context_window: number | null;
-  max_output_tokens: number | null;
+  internal_reasoning: number | null;
 }
 
 export interface PerRequestLimits {
@@ -57,7 +51,7 @@ export interface NormalizedModel {
   extended_pricing: ExtendedPricing | null;
   is_moderated: boolean;
   per_request_limits: PerRequestLimits | null;
-  deployments: Deployment[];
+  hugging_face_id: string | null;
 }
 
 export interface ProviderAdapter {
