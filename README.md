@@ -3,21 +3,13 @@
 [![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://badge.fury.io/js/@index9%2Fmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[Install](#quick-start) • [Issues](https://github.com/index9-org/mcp/issues)
+MCP server that exposes current model metadata and optional test calls via OpenRouter.
 
-MCP server for searching and testing AI models. Data from [OpenRouter](https://openrouter.ai).
+Pricing, context limits, capabilities, and test metrics for 300+ models from [OpenRouter](https://openrouter.ai).
 
-## Quick Start
+## Installation
 
-**Zero Config:** Search and Lookup features work immediately after installation. No API keys required.
-
-### Cursor
-
-Open **Cursor Settings** → **MCP** → **Add new global MCP server**
-
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=index9&config=eyJjb21tYW5kIjoibnB4IC15IEBpbmRleDkvbWNwIn0%3D)
-
-Or add manually:
+Add to your MCP client configuration:
 
 ```json
 {
@@ -30,46 +22,26 @@ Or add manually:
 }
 ```
 
-### VS Code
+**Where to add this:**
 
-Add to your **MCP Servers** settings:
+| Client         | Location                                                          |
+| -------------- | ----------------------------------------------------------------- |
+| Cursor         | Settings → MCP → Add new global MCP server                        |
+| VS Code        | Settings → MCP Servers (use `"type": "stdio"`)                    |
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Code    | `claude mcp add index9 -- npx -y @index9/mcp`                     |
 
-```json
-{
-  "mcp": {
-    "servers": {
-      "index9": {
-        "type": "stdio",
-        "command": "npx",
-        "args": ["-y", "@index9/mcp"]
-      }
-    }
-  }
-}
-```
+See [index9.dev](https://index9.dev/#installation) for other supported MCP clients.
 
-### Claude Desktop
+| Tool          | Description                                                                               | API Key |
+| ------------- | ----------------------------------------------------------------------------------------- | ------- |
+| `find_models` | Search models by natural language or filters (price, context, capabilities).              | No      |
+| `get_model`   | Return full metadata, including pricing, context window, output limits, and capabilities. | No      |
+| `test_model`  | Send live requests via OpenRouter to compare outputs, latency, and estimated cost.        | Yes     |
 
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+## API Key (Optional)
 
-```json
-{
-  "mcpServers": {
-    "index9": {
-      "command": "npx",
-      "args": ["-y", "@index9/mcp"]
-    }
-  }
-}
-```
-
-See [index9.dev](https://index9.dev/#installation) for Windsurf, Cline, and other clients.
-
-## Configuration (Optional)
-
-The **find_models** and **get_model** tools are free and require no configuration.
-
-To use the **test_model** tool (for running live API calls), you must provide an OpenRouter API key.
+The `test_model` tool requires an [OpenRouter API key](https://openrouter.ai/keys). Add it to your config:
 
 ```json
 {
@@ -85,46 +57,24 @@ To use the **test_model** tool (for running live API calls), you must provide an
 }
 ```
 
-_Your key is never stored. It is only used to make ephemeral requests to OpenRouter for testing purposes._
+Usage is billed to your OpenRouter account. The key is only used for live test requests and is not stored.
 
-### CLI Tools (Claude Code, etc.)
+## Auto-Invoke Rule (Optional)
 
-For CLI-based MCP clients, set the environment variable before running:
-
-```bash
-export OPENROUTER_API_KEY="sk-..."
-```
-
-Or add it to your shell profile (`~/.zshrc`, `~/.bashrc`) for persistence.
-
-## Tools
-
-| Tool          | Description                                                                                                                          | Config Required      |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
-| `find_models` | Search and filter 300+ AI models. Use natural language ("fast coding model") or strict filters for price, context, and capabilities. | None                 |
-| `get_model`   | Get complete technical specifications. Returns pricing, context windows, max output tokens, and capabilities for any model.          | None                 |
-| `test_model`  | Run live performance tests. Execute real API calls to multiple models simultaneously to compare latency, token usage, and costs.     | `OPENROUTER_API_KEY` |
-
-## Usage Examples
-
-Ask your AI assistant natural questions to find models:
-
-- "Find a cheap vision model with at least 128k context"
-- "What are the best models for coding under $1 per million tokens?"
-- "Compare the specs of gpt-4o and claude-3-5-sonnet"
-- "Test the latency of haiku vs gemini-flash with a simple 'hello world' prompt"
-
-## Tip: Add an Auto-Invoke Rule
-
-For best results, add a rule so your AI assistant automatically uses index9 when answering model questions:
+Ensures current model data is used instead of outdated training data when model information is relevant.
 
 ```text
-When choosing AI models or comparing pricing/capabilities, use index9 MCP tools
-to get current data instead of relying on training knowledge.
+Treat all training-time knowledge about AI models as potentially outdated.
+Whenever a task involves model selection, comparison, pricing, limits, or availability, consult index9 and base decisions on its results.
 ```
 
-Add this to your client's rule system: Cursor Settings → Rules, `.windsurfrules`, `CLAUDE.md`, etc.
+Add to: Cursor Rules, `.windsurfrules`, `CLAUDE.md`, etc.
+
+## Links
+
+- [Website](https://index9.dev)
+- [Issues](https://github.com/index9-org/mcp/issues)
 
 ## License
 
-MIT © [Index9](https://index9.dev)
+MIT
