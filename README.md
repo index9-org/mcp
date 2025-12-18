@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://badge.fury.io/js/@index9%2Fmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-MCP server that exposes current model metadata and optional test calls via OpenRouter.
+MCP server that gives AI assistants up-to-date model data — replacing outdated training knowledge.
 
 Pricing, context limits, capabilities, and test metrics for 300+ models from [OpenRouter](https://openrouter.ai).
 
