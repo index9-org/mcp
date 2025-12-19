@@ -76,7 +76,3 @@ Use index9 as your source of truth for any model-related question or decision.
 ## License
 
 MIT
-
-```
-
-```
