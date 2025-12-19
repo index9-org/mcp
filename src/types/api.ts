@@ -1,20 +1,10 @@
-/**
- * API Types - Request and response types for HTTP API endpoints
- */
-
 import type {
-  ListModelsFilters,
   ModelPricing,
   ModelCapabilities,
   ModelArchitecture,
   ExtendedPricing,
   PerRequestLimits,
 } from "./models.js";
-
-// List Models
-export interface ListModelsQueryParams extends ListModelsFilters {
-  owner?: string;
-}
 
 export interface ListModelsResponse {
   models: Array<{
@@ -31,16 +21,6 @@ export interface ListModelsResponse {
   }>;
 }
 
-export interface GetModelCapabilities {
-  vision: boolean;
-  audio: boolean;
-  tool_calling: boolean;
-  json_mode: boolean;
-  video: boolean;
-  function_calling: boolean;
-  custom: string[];
-}
-
 export interface GetModelResponse {
   id: string;
   name: string;
@@ -55,7 +35,15 @@ export interface GetModelResponse {
   };
   pricing: ModelPricing;
   extended_pricing: ExtendedPricing | null;
-  capabilities: GetModelCapabilities;
+  capabilities: {
+    vision: boolean;
+    audio: boolean;
+    tool_calling: boolean;
+    json_mode: boolean;
+    video: boolean;
+    function_calling: boolean;
+    custom: string[];
+  };
   supported_parameters: string[];
   is_moderated: boolean;
   input_modalities: string[];
@@ -64,35 +52,6 @@ export interface GetModelResponse {
   per_request_limits: PerRequestLimits | null;
 }
 
-// Search Models
-export interface SearchModelsRequest {
-  query: string;
-  limit?: number;
-  threshold?: number;
-}
-
-export interface SearchModelCapabilities {
-  vision: boolean | null;
-  audio: boolean | null;
-  tool_calling: boolean | null;
-  json_mode: boolean | null;
-  video: boolean | null;
-}
-
-export interface SearchModelsResponse {
-  results: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-    similarity: number;
-    provider: string;
-    context_window: number | null;
-    pricing: ModelPricing;
-    capabilities: SearchModelCapabilities;
-  }>;
-}
-
-// Find Models (unified search + filter)
 export interface FindModelsRequest {
   query?: string;
   provider?: string;
@@ -114,28 +73,18 @@ export interface FindModelsResponse {
     provider: string;
     context_window: number | null;
     pricing: ModelPricing;
-    capabilities: SearchModelCapabilities;
+    capabilities: {
+      vision: boolean | null;
+      audio: boolean | null;
+      tool_calling: boolean | null;
+      json_mode: boolean | null;
+      video: boolean | null;
+    };
     matched_features?: string[];
     hugging_face_id?: string | null;
     release_date: string | null;
   }>;
   total?: number;
-}
-
-// Test Model
-export interface TestModelRequest {
-  model_ids: string[];
-  test_type?: "quick" | "code" | "reasoning" | "instruction" | "tool_calling";
-  custom_prompt?: string;
-  max_tokens?: number;
-  temperature?: number;
-  system_prompt?: string;
-}
-
-export interface TokensUsed {
-  prompt_tokens: number;
-  completion_tokens: number;
-  total_tokens: number;
 }
 
 export interface CostEstimate {
@@ -149,7 +98,11 @@ export interface TestModelResult {
   model_name: string;
   latency_ms: number;
   output: string | null;
-  tokens_used: TokensUsed | null;
+  tokens_used: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  } | null;
   cost_estimate: CostEstimate;
   tool_calls_detected?: boolean;
   tool_calls?: Array<{

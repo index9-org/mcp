@@ -1,7 +1,3 @@
-/**
- * Model Types - Normalized model interface for OpenRouter models
- */
-
 export interface ModelPricing {
   input: number | null;
   output: number | null;
@@ -35,7 +31,7 @@ export interface PerRequestLimits {
 }
 
 export interface NormalizedModel {
-  id: string; // canonical: "openai/gpt-4o"
+  id: string;
   name: string;
   provider: string;
   context_window: number | null;
@@ -44,8 +40,8 @@ export interface NormalizedModel {
   capabilities: ModelCapabilities;
   description: string | null;
   release_date: string | null;
-  input_modalities: string[]; // ["text", "image", "audio", "video", "file"]
-  output_modalities: string[]; // ["text", "image", "embeddings"]
+  input_modalities: string[];
+  output_modalities: string[];
   supported_parameters: string[];
   architecture: ModelArchitecture;
   extended_pricing: ExtendedPricing | null;
