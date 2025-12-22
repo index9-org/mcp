@@ -1,5 +1,5 @@
 const API_URL = process.env.INDEX9_API_URL || "https://index9.dev/api";
-const OPEN_ROUTER_API_KEY = process.env.OPEN_ROUTER_API_KEY || null;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || null;
 
 // Configurable timeouts (in milliseconds)
 const API_TIMEOUT = parseInt(process.env.INDEX9_API_TIMEOUT || "30000"); // 30 seconds default
@@ -11,7 +11,7 @@ const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || 
 
 export {
   API_URL,
-  OPEN_ROUTER_API_KEY,
+  OPENROUTER_API_KEY,
   API_TIMEOUT,
   TEST_MODEL_TIMEOUT,
   RATE_LIMIT_WINDOW_MS,

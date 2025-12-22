@@ -1,7 +1,7 @@
 {
   "name": "@index9/mcp",
   "mcpName": "io.github.index9-org/mcp",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Up-to-date model data for AI assistants. Data from OpenRouter.",
   "keywords": [
     "mcp",

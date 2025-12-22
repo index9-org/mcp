@@ -55,7 +55,7 @@ export async function testModel(
     model_ids: modelIds,
     test_type: testType,
     custom_prompt: prompt,
-    open_router_api_key: openRouterApiKey || undefined,
+    openrouter_api_key: openRouterApiKey || undefined,
     max_tokens: maxTokens,
     temperature,
     system_prompt: systemPrompt,

@@ -8,7 +8,7 @@ import { checkRateLimit } from "./utils/rateLimiter.js";
 import { findModelsTool } from "./tools/find_models.js";
 import { getModelTool } from "./tools/get_model.js";
 import { testModelTool } from "./tools/test_model.js";
-import { OPEN_ROUTER_API_KEY } from "./config.js";
+import { OPENROUTER_API_KEY } from "./config.js";
 import {
   findModelsSchema,
   getModelSchema,
@@ -128,13 +128,13 @@ Use find_models or get_model first to identify model IDs.`,
       }
 
       try {
-        if (!OPEN_ROUTER_API_KEY) {
+        if (!OPENROUTER_API_KEY) {
           logger.warn({ tool: "test_model" }, "Missing OpenRouter API key");
           return {
             content: [
               {
                 type: "text",
-                text: "Error: OPEN_ROUTER_API_KEY is required to use test_model. This tool runs live tests against AI models via OpenRouter API.\n\nTo use this tool:\n1. Get your API key from https://openrouter.ai/keys\n2. Add OPEN_ROUTER_API_KEY to your MCP client configuration (e.g., in Cursor settings or Claude Desktop config)\n3. Restart your MCP client\n\nCharges are billed directly to your OpenRouter account.",
+                text: "Error: OPENROUTER_API_KEY is required to use test_model. This tool runs live tests against AI models via OpenRouter API.\n\nTo use this tool:\n1. Get your API key from https://openrouter.ai/keys\n2. Add OPENROUTER_API_KEY to your MCP client configuration (e.g., in Cursor settings or Claude Desktop config)\n3. Restart your MCP client\n\nCharges are billed directly to your OpenRouter account.",
               },
             ],
             isError: true,

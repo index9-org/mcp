@@ -1,0 +1,22 @@
+name: Process Embeddings
+
+on:
+  push:
+    branches: [main] # Run after every deploy
+  schedule:
+    - cron: "*/10 * * * *" # Every 10 minutes
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call embeddings API
+        run: |
+          curl -X GET "${{ secrets.APP_URL }}/api/cron/embeddings" \
+               -H "Authorization: Bearer ${{ secrets.EMBEDDINGS_CRON_SECRET }}" \
+               --fail --silent --show-error
