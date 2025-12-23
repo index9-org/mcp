@@ -1,8 +1,8 @@
 {
   "name": "@index9/mcp",
   "mcpName": "io.github.index9-org/mcp",
-  "version": "1.0.24",
-  "description": "Up-to-date model data for AI assistants. Data from OpenRouter.",
+  "version": "1.0.25",
+  "description": "Live model data for AI coding assistants.",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -12,8 +12,6 @@
     "pricing",
     "capabilities",
     "context-window",
-    "api",
-    "sdk",
     "openrouter"
   ],
   "homepage": "https://index9.dev",
@@ -25,7 +23,7 @@
     "url": "https://github.com/index9-org/mcp/issues"
   },
   "license": "MIT",
-  "author": "Index9 <hello@index9.dev>",
+  "author": "index9 <hello@index9.dev>",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

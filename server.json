@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.index9-org/mcp",
-  "version": "1.0.24",
-  "description": "Up-to-date model data for AI assistants.",
+  "version": "1.0.25",
+  "description": "Live model data for AI coding assistants.",
   "repository": {
     "url": "https://github.com/index9-org/mcp",
     "source": "github"
@@ -13,7 +13,6 @@
     "models",
     "pricing",
     "search",
-    "recommendation",
     "index9",
     "openrouter"
   ],
@@ -21,7 +20,7 @@
     {
       "registryType": "npm",
       "identifier": "@index9/mcp",
-      "version": "1.0.24",
+      "version": "1.0.25",
       "transport": {
         "type": "stdio"
       },

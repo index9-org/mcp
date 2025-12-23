@@ -3,9 +3,9 @@
 [![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://badge.fury.io/js/@index9%2Fmcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-MCP server that gives AI assistants up-to-date model data — replacing outdated training knowledge.
+Your AI assistant's model knowledge is outdated. This fixes that.
 
-Pricing, context limits, capabilities, and test metrics for 300+ models from [OpenRouter](https://openrouter.ai).
+MCP server providing live pricing, context limits, and capabilities for 300+ models from [OpenRouter](https://openrouter.ai).
 
 ## Installation
 
@@ -31,17 +31,19 @@ Add to your MCP client configuration:
 | Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` |
 | Claude Code    | `claude mcp add index9 -- npx -y @index9/mcp`                     |
 
-See [index9.dev](https://index9.dev/#installation) for other supported MCP clients.
+See [index9.dev](https://index9.dev/#installation) for all supported clients.
 
-| Tool          | Description                                                                               | API Key |
-| ------------- | ----------------------------------------------------------------------------------------- | ------- |
-| `find_models` | Search models by natural language or filters (price, context, capabilities).              | No      |
-| `get_model`   | Return full metadata, including pricing, context window, output limits, and capabilities. | No      |
-| `test_model`  | Send live requests via OpenRouter to compare outputs, latency, and estimated cost.        | Yes     |
+## Tools
+
+| Tool          | Description                                             | API Key |
+| ------------- | ------------------------------------------------------- | ------- |
+| `find_models` | Search by natural language or filters                   | No      |
+| `get_model`   | Get full specs: pricing, context, limits, capabilities  | No      |
+| `test_model`  | Run live requests to compare outputs, latency, and cost | Yes     |
 
 ## API Key (Optional)
 
-The `test_model` tool requires an [OpenRouter API key](https://openrouter.ai/keys). Add it to your config:
+`test_model` requires an [OpenRouter API key](https://openrouter.ai/keys):
 
 ```json
 {
@@ -57,9 +59,9 @@ The `test_model` tool requires an [OpenRouter API key](https://openrouter.ai/key
 }
 ```
 
-Usage is billed to your OpenRouter account. The key is only used for live test requests and is not stored.
+Billed to your OpenRouter account. Your key is never stored.
 
-## Recommended Rule (Optional)
+## Pro Tip
 
 Add to Cursor Rules, `.windsurfrules`, `CLAUDE.md`, or similar:
 
