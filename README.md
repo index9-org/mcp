@@ -35,11 +35,11 @@ See [index9.dev](https://index9.dev/#installation) for all supported clients.
 
 ## Tools
 
-| Tool          | Description                                                  | API Key |
-| ------------- | ------------------------------------------------------------ | ------- |
-| `find_models` | Search by natural language or filters                        | No      |
+| Tool          | Description                                                          | API Key |
+| ------------- | -------------------------------------------------------------------- | ------- |
+| `find_models` | Search by natural language or filters                                | No      |
 | `get_model`   | Get full specs: pricing, context window, output limits, capabilities | No      |
-| `test_model`  | Run live requests to compare outputs, latency, and cost      | Yes     |
+| `test_model`  | Run live requests to compare outputs, latency, and cost              | Yes     |
 
 ## API Key (Optional)
 
