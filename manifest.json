@@ -1,0 +1,49 @@
+{
+  "manifest_version": "0.3",
+  "name": "index9",
+  "version": "4.0.0",
+  "description": "Search, inspect, and benchmark 300+ AI models from your editor",
+  "author": {
+    "name": "Index9"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "dist/cli.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/cli.js"],
+      "env": {
+        "OPENROUTER_API_KEY": "${user_config.openrouter_api_key}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "find_models",
+      "description": "Search and paginate AI models by semantic query or filters"
+    },
+    {
+      "name": "get_models",
+      "description": "Get full model metadata by IDs or aliases (batch, up to 100)"
+    },
+    {
+      "name": "test_model",
+      "description": "Run live inference or dry-run cost estimation across up to 10 models"
+    }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "linux", "win32"],
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  },
+  "user_config": {
+    "openrouter_api_key": {
+      "type": "string",
+      "title": "OpenRouter API Key",
+      "description": "Required for live test_model calls. dryRun=true does not require it.",
+      "sensitive": true,
+      "required": false
+    }
+  }
+}

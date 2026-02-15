@@ -1,15 +1,15 @@
 # @index9/mcp
 
-[![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://badge.fury.io/js/@index9%2Fmcp)
+[![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://www.npmjs.com/package/@index9/mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Your AI assistant’s model knowledge is outdated. **index9 fixes that.**
+Search, inspect, and benchmark 300+ AI models from your editor.
 
-MCP server providing up-to-date pricing, context limits, and capabilities for 300+ models from [OpenRouter](https://openrouter.ai).
+## Install
 
-## Installation
+### Cursor / VS Code
 
-Add to your MCP client configuration:
+Add to `.cursor/mcp.json` or `.vscode/mcp.json`:
 
 ```json
 {
@@ -22,28 +22,21 @@ Add to your MCP client configuration:
 }
 ```
 
-**Where to add this:**
+### Claude Code
 
-| Client         | Location                                                                  |
-| -------------- | ------------------------------------------------------------------------- |
-| Cursor         | Settings → MCP → Add new global MCP server                                |
-| VS Code        | Settings → MCP Servers (use `"type": "stdio"`)                            |
-| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
-| Claude Code    | `claude mcp add index9 -- npx -y @index9/mcp`                             |
-
-See [index9.dev](https://index9.dev/#installation) for all supported clients.
+```bash
+claude mcp add --transport stdio index9 -- npx -y @index9/mcp
+```
 
 ## Tools
 
-| Tool          | Description                                                          | API Key |
-| ------------- | -------------------------------------------------------------------- | ------- |
-| `find_models` | Search by natural language or filters                                | No      |
-| `get_model`   | Get full specs: pricing, context window, output limits, capabilities | No      |
-| `test_model`  | Run live requests to compare outputs, latency, and cost              | Yes     |
+| Tool | Description | API Key |
+|---|---|---|
+| `find_models` | Search models by query, price, context window, or capabilities | No |
+| `get_models` | Get pricing, limits, and capabilities for any model by ID or alias | No |
+| `test_model` | Run your prompt across multiple models — compare outputs, latency, and cost | Optional |
 
-## API Key (Optional)
-
-`test_model` requires an [OpenRouter API key](https://openrouter.ai/keys):
+`test_model` with `dryRun=true` estimates cost without inference (no key needed). Live tests require an [OpenRouter API key](https://openrouter.ai/keys):
 
 ```json
 {
@@ -59,20 +52,11 @@ See [index9.dev](https://index9.dev/#installation) for all supported clients.
 }
 ```
 
-Billed to your OpenRouter account. Your key is never stored.
-
-## Pro Tip
-
-Add to Cursor Rules, `.windsurfrules`, `CLAUDE.md`, or similar:
-
-```text
-Assume your knowledge of AI models (pricing, capabilities, etc.) is outdated.
-Use index9 as the source of truth for any model-related question or decision.
-```
+Your key is passed per-request and never stored.
 
 ## Links
 
-- [Website](https://index9.dev)
+- [index9.dev](https://index9.dev) — full docs and examples
 - [Issues](https://github.com/index9-org/mcp/issues)
 
 ## License

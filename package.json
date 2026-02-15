@@ -1,60 +1,41 @@
 {
   "name": "@index9/mcp",
-  "mcpName": "io.github.index9-org/mcp",
-  "version": "1.0.32",
-  "description": "Up-to-date model data for AI coding assistants.",
-  "keywords": [
-    "mcp",
-    "model-context-protocol",
-    "ai",
-    "llm",
-    "models",
-    "pricing",
-    "capabilities",
-    "context-window",
-    "openrouter"
+  "version": "4.0.0",
+  "description": "Search, inspect, and benchmark 300+ AI models from your editor",
+  "bin": {
+    "index9-mcp": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "manifest.json"
   ],
-  "homepage": "https://index9.dev",
+  "type": "module",
+  "main": "./dist/cli.js",
+  "types": "./dist/cli.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/index9-org/mcp.git"
   },
-  "bugs": {
-    "url": "https://github.com/index9-org/mcp/issues"
-  },
-  "license": "MIT",
-  "author": "index9 <hello@index9.dev>",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "bin": {
-    "index9": "./dist/index.js"
-  },
   "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "start": "node dist/index.js",
-    "dev": "tsx watch --env-file=.env src/index.ts",
-    "prepublishOnly": "pnpm build",
-    "publish:beta": "pnpm publish --tag beta",
-    "publish:prod": "pnpm publish --tag latest"
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit",
+    "start": "node dist/cli.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.3",
-    "axios": "^1.13.4",
-    "pino": "^10.3.0",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
-    "pino-pretty": "^13.1.3",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "@types/node": "^25.2.3",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3"
   },
-  "publishConfig": {
-    "access": "public"
-  }
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
 }

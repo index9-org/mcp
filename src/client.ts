@@ -1,64 +1,32 @@
-import axios, { type AxiosError } from "axios";
-import { API_URL, API_TIMEOUT, TEST_MODEL_TIMEOUT } from "./config.js";
-import type {
-  GetModelResponse,
-  FindModelsResponse,
-  FindModelsRequest,
-  TestModelResponse,
-} from "./types/index.js";
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
 
-const createAxiosClient = (timeout: number) => {
-  const client = axios.create({ baseURL: API_URL, timeout });
-
-  client.interceptors.response.use(
-    (res) => res,
-    (error: AxiosError<{ message?: string }>) => {
-      if (error.response?.status === 404) {
-        const message = error.response?.data?.message || "Resource not found";
-        throw new Error(message);
-      }
-      const message =
-        error.response?.data?.message ||
-        (error.code === "ECONNABORTED" ? `Request timeout` : null) ||
-        (error.code === "ECONNREFUSED" ? `Unable to connect to API server` : null) ||
-        error.message;
-      throw new Error(message);
-    },
-  );
-
-  return client;
-};
-
-const client = createAxiosClient(API_TIMEOUT);
-const testClient = createAxiosClient(TEST_MODEL_TIMEOUT); // test operations with longer timeout
-
-export async function findModels(params: FindModelsRequest): Promise<FindModelsResponse> {
-  const { data } = await client.post<FindModelsResponse>("/models/find", params);
-  return data;
+function isRetryable(status: number): boolean {
+  return status === 429 || status >= 500;
 }
 
-export async function getModel(modelId: string): Promise<GetModelResponse> {
-  const { data } = await client.get<GetModelResponse>(`/models/${encodeURIComponent(modelId)}`);
-  return data;
+async function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
-export async function testModel(
-  modelIds: string[],
-  testType?: "quick" | "code" | "reasoning" | "instruction" | "tool_calling",
-  openRouterApiKey?: string | null,
-  prompt?: string,
-  maxTokens?: number,
-  temperature?: number,
-  systemPrompt?: string,
-): Promise<TestModelResponse> {
-  const { data } = await testClient.post<TestModelResponse>("/test", {
-    model_ids: modelIds,
-    test_type: testType,
-    custom_prompt: prompt,
-    openrouter_api_key: openRouterApiKey || undefined,
-    max_tokens: maxTokens,
-    temperature,
-    system_prompt: systemPrompt,
-  });
-  return data;
+export async function fetchWithRetry(url: string, options: RequestInit): Promise<Response> {
+  let lastResponse: Response | null = null;
+  for (let i = 0; i <= RETRY_DELAYS_MS.length; i++) {
+    const res = await fetch(url, options);
+    lastResponse = res;
+    if (res.ok || !isRetryable(res.status)) return res;
+    if (i < RETRY_DELAYS_MS.length) {
+      await sleep(RETRY_DELAYS_MS[i]);
+    }
+  }
+  return lastResponse!;
+}
+
+export function buildUrl(baseUrl: string, path: string, params?: Record<string, string>): string {
+  const url = new URL(path, baseUrl);
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== "") url.searchParams.set(k, v);
+    }
+  }
+  return url.toString();
 }
