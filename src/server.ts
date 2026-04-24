@@ -1,5 +1,9 @@
 import {
+  CAPABILITIES,
+  FindModelsToolResultSchema,
+  GetModelsToolResultSchema,
   LIMITS,
+  OUTPUT_MODALITIES,
   PARAM_DESCRIPTIONS,
   ResponseFormatSchema,
   TOOLS,
@@ -22,6 +26,7 @@ export async function createServer(): Promise<McpServer> {
   server.registerTool(
     "find_models",
     {
+      title: TOOLS.find_models.title,
       description: TOOLS.find_models.description,
       inputSchema: {
         q: z.string().min(1).optional().describe(PARAM_DESCRIPTIONS.q),
@@ -57,16 +62,17 @@ export async function createServer(): Promise<McpServer> {
           .optional()
           .describe("Minimum context window in tokens."),
         capabilitiesAll: z
-          .array(z.string())
+          .array(z.enum(CAPABILITIES))
           .optional()
           .describe(PARAM_DESCRIPTIONS.capabilitiesAll),
         capabilitiesAny: z
-          .array(z.string())
+          .array(z.enum(CAPABILITIES))
           .optional()
           .describe(PARAM_DESCRIPTIONS.capabilitiesAny),
-        modality: z.string().optional().describe(PARAM_DESCRIPTIONS.modality),
+        modality: z.enum(OUTPUT_MODALITIES).optional().describe(PARAM_DESCRIPTIONS.modality),
         provider: z.string().min(1).optional().describe(PARAM_DESCRIPTIONS.provider),
       },
+      outputSchema: FindModelsToolResultSchema.shape,
       annotations: { readOnlyHint: true },
     },
     async (args) => handleSearchModels(ctx, args),
@@ -75,6 +81,7 @@ export async function createServer(): Promise<McpServer> {
   server.registerTool(
     "get_models",
     {
+      title: TOOLS.get_models.title,
       description: TOOLS.get_models.description,
       inputSchema: {
         ids: z
@@ -90,6 +97,7 @@ export async function createServer(): Promise<McpServer> {
           .optional()
           .describe("Truncate descriptions to this many characters."),
       },
+      outputSchema: GetModelsToolResultSchema.shape,
       annotations: { readOnlyHint: true },
     },
     async (args) => handleGetModels(ctx, args),
@@ -98,6 +106,7 @@ export async function createServer(): Promise<McpServer> {
   server.registerTool(
     "test_model",
     {
+      title: TOOLS.test_model.title,
       description: TOOLS.test_model.description,
       inputSchema: {
         prompt: z.string().min(1).optional().describe("Prompt sent to each model."),
@@ -129,7 +138,14 @@ export async function createServer(): Promise<McpServer> {
           .min(1)
           .optional()
           .describe("Per-model timeout in ms (default 15000, max 60000)."),
-        maxTokens: z.number().int().min(1).optional().describe("Completion token cap."),
+        maxTokens: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe(
+            "Completion token cap. For reasoning-capable models, set ≥ 2000 (or omit) — reasoning tokens count against this before visible output, and too-low caps cause finish_reason=length.",
+          ),
         systemPrompt: z
           .string()
           .min(1)
@@ -150,6 +166,9 @@ export async function createServer(): Promise<McpServer> {
           .optional()
           .describe("Retries for transient failures."),
       },
+      // No outputSchema: test_model returns a z.union of dry-run and live shapes.
+      // The SDK supports only ZodRawShape | AnySchema for outputSchema; a discriminated-union
+      // output is represented accurately in the tool description instead.
       annotations: { readOnlyHint: false },
     },
     async (args) => handleTestModels(ctx, args),

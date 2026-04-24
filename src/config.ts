@@ -8,6 +8,15 @@ export function loadConfig(): {
   const env = process.env.INDEX9_API_BASE_URL?.trim();
   const baseUrl = env || DEFAULT_BASE_URL;
   const normalized = baseUrl.replace(/\/$/, "");
+
+  try {
+    new URL(normalized);
+  } catch {
+    throw new Error(
+      `Invalid INDEX9_API_BASE_URL: ${normalized}. Expected an absolute URL such as https://index9.dev`,
+    );
+  }
+
   return {
     baseUrl: normalized,
     apiToken: process.env.INDEX9_API_TOKEN?.trim() || undefined,

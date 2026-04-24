@@ -1,59 +1,50 @@
 # @index9/mcp
 
-[![npm version](https://badge.fury.io/js/@index9%2Fmcp.svg)](https://www.npmjs.com/package/@index9/mcp)
-
-Search, inspect, and benchmark 300+ AI models from your editor.
+Search, inspect, and benchmark 300+ AI models from your editor
 
 ## Install
 
-### Cursor / VS Code
-
-Add to `.cursor/mcp.json` or `.vscode/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "index9": {
-      "command": "npx",
-      "args": ["-y", "@index9/mcp"]
-    }
-  }
-}
-```
-
-### Claude Code
-
 ```bash
-claude mcp add --transport stdio index9 -- npx -y @index9/mcp
+npx -y @index9/mcp@latest
 ```
 
-## Tools
+## OpenRouter API key
 
-| Tool          | Description                                                                 | API Key  |
-| ------------- | --------------------------------------------------------------------------- | -------- |
-| `find_models` | Search models by query, price, context window, or capabilities              | No       |
-| `get_models`  | Get pricing, limits, and capabilities for any model by ID or alias          | No       |
-| `test_model`  | Run your prompt across multiple models — compare outputs, latency, and cost | Optional |
+Optional: set OPENROUTER_API_KEY in your MCP client config for live test_model calls. dryRun=true works without a key.
 
-`test_model` with `dryRun=true` estimates cost without inference (no key needed). Live tests require an [OpenRouter API key](https://openrouter.ai/keys):
+Add the key as `OPENROUTER_API_KEY` in the MCP server environment for your client. Example:
 
 ```json
 {
   "mcpServers": {
     "index9": {
       "command": "npx",
-      "args": ["-y", "@index9/mcp"],
+      "args": ["-y", "@index9/mcp@latest"],
       "env": {
-        "OPENROUTER_API_KEY": "sk-..."
+        "OPENROUTER_API_KEY": "sk-or-..."
       }
     }
   }
 }
 ```
 
-Your key is passed per-request and never stored.
+**Claude Code:** Run `claude mcp add --transport stdio index9 -- npx -y @index9/mcp` or add the same config to .mcp.json / ~/.claude.json.
 
-## Links
+## Tools
 
-- [index9.dev](https://index9.dev) — full docs and examples
-- [Issues](https://github.com/index9-org/mcp/issues)
+- **find_models** — Search and paginate AI models by semantic query or filters
+- **get_models** — Get full model metadata by IDs or aliases (batch, up to 100)
+- **test_model** — Run live inference or dry-run cost estimation across up to 10 models (requires OpenRouter API key)
+
+## Response Metadata
+
+All tool responses include an `_index9` object with at least:
+
+- `apiBaseUrl` — The API base URL used for the request
+
+Error responses also include:
+
+- `status` — Upstream HTTP status code
+- `_index9.retryAfterSeconds` — Present when `Retry-After` is returned
+- `_index9.rateLimit` — Present when rate-limit headers are returned (`x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`)
+

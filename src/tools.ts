@@ -16,7 +16,11 @@ type ToolContext = {
   openRouterApiKey: string | undefined;
 };
 
-type ToolResponse = { content: { type: "text"; text: string }[]; isError?: boolean };
+type ToolResponse = {
+  content: { type: "text"; text: string }[];
+  structuredContent?: Record<string, unknown>;
+  isError?: boolean;
+};
 
 type RateLimitMeta = {
   limit?: string;
@@ -37,10 +41,14 @@ function baseHeaders(ctx: ToolContext): Record<string, string> {
 }
 
 function toResponse(payload: unknown, isError = false): ToolResponse {
-  return {
+  const response: ToolResponse = {
     content: [{ type: "text", text: JSON.stringify(payload) }],
     isError: isError || undefined,
   };
+  if (!isError && typeof payload === "object" && payload !== null && !Array.isArray(payload)) {
+    response.structuredContent = payload as Record<string, unknown>;
+  }
+  return response;
 }
 
 function parseRetryAfterSeconds(value: string | null | undefined): number | undefined {

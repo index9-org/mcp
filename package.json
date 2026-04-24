@@ -1,7 +1,11 @@
 {
   "name": "@index9/mcp",
-  "version": "4.0.0",
-  "description": "Search, inspect, and benchmark 300+ AI models from your editor",
+  "version": "5.2.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/index9-org/mcp.git"
+  },
   "bin": {
     "index9-mcp": "./dist/cli.js"
   },
@@ -15,24 +19,23 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/index9-org/mcp.git"
-  },
   "scripts": {
-    "build": "tsup",
+    "build": "node ../../scripts/generate-docs.mjs && tsup",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "start": "node dist/cli.js"
+    "start": "node dist/cli.js",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.2.3",
+    "@index9/core": "workspace:*",
+    "@types/node": "^25.6.0",
     "tsup": "^8.5.1",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3",
+    "vitest": "^4.1.5"
   },
   "engines": {
     "node": ">=20"
