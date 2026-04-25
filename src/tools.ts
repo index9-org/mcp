@@ -2,6 +2,9 @@ import {
   API_PATHS,
   BatchModelLookupRequestSchema,
   BatchModelLookupResponseSchema,
+  CompareRequestSchema,
+  CompareResponseSchema,
+  FacetsResponseSchema,
   SearchQuerySchema,
   SearchResponseSchema,
   TestRequestSchema,
@@ -147,7 +150,8 @@ export async function handleSearchModels(ctx: ToolContext, args: unknown): Promi
   if (q.capabilitiesAll?.length) params.capabilitiesAll = q.capabilitiesAll.join(",");
   if (q.capabilitiesAny?.length) params.capabilitiesAny = q.capabilitiesAny.join(",");
   if (q.modality) params.modality = q.modality;
-  if (q.provider) params.provider = q.provider;
+  if (q.provider?.length) params.provider = q.provider.join(",");
+  if (q.excludeFree === true) params.excludeFree = "true";
 
   return callApi(
     ctx,
@@ -168,6 +172,29 @@ export async function handleGetModels(ctx: ToolContext, args: unknown): Promise<
     `${ctx.baseUrl}${API_PATHS.model}`,
     { method: "POST", headers: baseHeaders(ctx), body: JSON.stringify(parsed.data) },
     BatchModelLookupResponseSchema,
+  );
+}
+
+export async function handleCompareModels(ctx: ToolContext, args: unknown): Promise<ToolResponse> {
+  const parsed = CompareRequestSchema.safeParse(args);
+  if (!parsed.success) {
+    return toResponse({ error: parsed.error.message }, true);
+  }
+
+  return callApi(
+    ctx,
+    `${ctx.baseUrl}${API_PATHS.compare}`,
+    { method: "POST", headers: baseHeaders(ctx), body: JSON.stringify(parsed.data) },
+    CompareResponseSchema,
+  );
+}
+
+export async function handleListFacets(ctx: ToolContext, _args: unknown): Promise<ToolResponse> {
+  return callApi(
+    ctx,
+    `${ctx.baseUrl}${API_PATHS.facets}`,
+    { method: "GET", headers: baseHeaders(ctx) },
+    FacetsResponseSchema,
   );
 }
 

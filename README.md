@@ -1,6 +1,6 @@
 # @index9/mcp
 
-Search, inspect, and benchmark 300+ AI models from your editor
+Discover, shortlist, compare, cost-model, and live-test 300+ AI models from your editor
 
 ## Install
 
@@ -34,6 +34,8 @@ Add the key as `OPENROUTER_API_KEY` in the MCP server environment for your clien
 
 - **find_models** — Search and paginate AI models by semantic query or filters
 - **get_models** — Get full model metadata by IDs or aliases (batch, up to 100)
+- **compare_models** — Diff 2-10 models across pricing, context, capabilities, and tokenizer
+- **list_facets** — Enumerate available providers, capabilities, modalities, and tokenizers
 - **test_model** — Run live inference or dry-run cost estimation across up to 10 models (requires OpenRouter API key)
 
 ## Response Metadata

@@ -1,8 +1,10 @@
 import {
   CAPABILITIES,
+  CompareModelsToolResultSchema,
   FindModelsToolResultSchema,
   GetModelsToolResultSchema,
   LIMITS,
+  ListFacetsToolResultSchema,
   OUTPUT_MODALITIES,
   PARAM_DESCRIPTIONS,
   ResponseFormatSchema,
@@ -14,7 +16,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 import { loadConfig } from "./config.js";
-import { handleGetModels, handleSearchModels, handleTestModels } from "./tools.js";
+import {
+  handleCompareModels,
+  handleGetModels,
+  handleListFacets,
+  handleSearchModels,
+  handleTestModels,
+} from "./tools.js";
 
 export async function createServer(): Promise<McpServer> {
   const ctx = loadConfig();
@@ -70,7 +78,8 @@ export async function createServer(): Promise<McpServer> {
           .optional()
           .describe(PARAM_DESCRIPTIONS.capabilitiesAny),
         modality: z.enum(OUTPUT_MODALITIES).optional().describe(PARAM_DESCRIPTIONS.modality),
-        provider: z.string().min(1).optional().describe(PARAM_DESCRIPTIONS.provider),
+        provider: z.array(z.string().min(1)).optional().describe(PARAM_DESCRIPTIONS.provider),
+        excludeFree: z.boolean().optional().describe(PARAM_DESCRIPTIONS.excludeFree),
       },
       outputSchema: FindModelsToolResultSchema.shape,
       annotations: { readOnlyHint: true },
@@ -104,6 +113,54 @@ export async function createServer(): Promise<McpServer> {
   );
 
   server.registerTool(
+    "compare_models",
+    {
+      title: TOOLS.compare_models.title,
+      description: TOOLS.compare_models.description,
+      inputSchema: {
+        ids: z
+          .array(z.string().min(1))
+          .min(2)
+          .max(LIMITS.compareModelsMax)
+          .describe(
+            `Model identifiers or aliases to compare (2-${LIMITS.compareModelsMax}). Same alias formats as get_models.`,
+          ),
+        expectedPromptTokens: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe(
+            "Optional. When set with expectedCompletionTokens, computes total per-call cost for each model and picks cheapestForRealisticWorkload — closes the gap where promptPerMillion alone misleads when prompt:completion price ratios diverge.",
+          ),
+        expectedCompletionTokens: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe(
+            "Optional. Pair with expectedPromptTokens to surface workloadCosts and cheapestForRealisticWorkload. Both must be set to enable workload costing.",
+          ),
+      },
+      outputSchema: CompareModelsToolResultSchema.shape,
+      annotations: { readOnlyHint: true },
+    },
+    async (args) => handleCompareModels(ctx, args),
+  );
+
+  server.registerTool(
+    "list_facets",
+    {
+      title: TOOLS.list_facets.title,
+      description: TOOLS.list_facets.description,
+      inputSchema: {},
+      outputSchema: ListFacetsToolResultSchema.shape,
+      annotations: { readOnlyHint: true },
+    },
+    async (args) => handleListFacets(ctx, args),
+  );
+
+  server.registerTool(
     "test_model",
     {
       title: TOOLS.test_model.title,
@@ -121,6 +178,12 @@ export async function createServer(): Promise<McpServer> {
           .describe(
             "When true, returns estimated token usage and cost without calling OpenRouter (no API key required).",
           ),
+        expectedPromptTokens: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe(PARAM_DESCRIPTIONS.expectedPromptTokens),
         expectedCompletionTokens: z
           .number()
           .int()

@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "index9",
   "version": "5.2.0",
-  "description": "Search, inspect, and benchmark 300+ AI models from your editor",
+  "description": "Discover, shortlist, compare, cost-model, and live-test 300+ AI models from your editor",
   "author": {
     "name": "Index9"
   },
@@ -27,6 +27,14 @@
     {
       "name": "get_models",
       "description": "Get full model metadata by IDs or aliases (batch, up to 100)"
+    },
+    {
+      "name": "compare_models",
+      "description": "Diff 2-10 models across pricing, context, capabilities, and tokenizer"
+    },
+    {
+      "name": "list_facets",
+      "description": "Enumerate available providers, capabilities, modalities, and tokenizers"
     },
     {
       "name": "test_model",
