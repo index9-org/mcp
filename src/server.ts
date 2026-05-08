@@ -80,6 +80,10 @@ export async function createServer(): Promise<McpServer> {
         modality: z.enum(OUTPUT_MODALITIES).optional().describe(PARAM_DESCRIPTIONS.modality),
         provider: z.array(z.string().min(1)).optional().describe(PARAM_DESCRIPTIONS.provider),
         excludeFree: z.boolean().optional().describe(PARAM_DESCRIPTIONS.excludeFree),
+        requireKeywordMatch: z
+          .boolean()
+          .optional()
+          .describe(PARAM_DESCRIPTIONS.requireKeywordMatch),
       },
       outputSchema: FindModelsToolResultSchema.shape,
       annotations: { readOnlyHint: true },

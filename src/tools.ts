@@ -152,6 +152,7 @@ export async function handleSearchModels(ctx: ToolContext, args: unknown): Promi
   if (q.modality) params.modality = q.modality;
   if (q.provider?.length) params.provider = q.provider.join(",");
   if (q.excludeFree === true) params.excludeFree = "true";
+  if (q.requireKeywordMatch === true) params.requireKeywordMatch = "true";
 
   return callApi(
     ctx,
