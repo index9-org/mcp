@@ -49,3 +49,4 @@ Error responses also include:
 - `status` — Upstream HTTP status code
 - `_index9.retryAfterSeconds` — Present when `Retry-After` is returned
 - `_index9.rateLimit` — Present when rate-limit headers are returned (`x-ratelimit-limit`, `x-ratelimit-remaining`, `x-ratelimit-reset`)
+

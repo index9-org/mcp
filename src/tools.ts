@@ -100,6 +100,28 @@ function extractError(body: unknown): string {
   return "Request failed";
 }
 
+// Diagnostic fields the API attaches to 4xx recovery responses (e.g. compare's
+// "fewer than 2 resolvable" 400, test_model's "no resolvable ids" 400). Pass
+// them through to the MCP client so an LLM can retry with `suggestions[id][0].id`
+// instead of seeing a bare error string.
+const RECOVERY_FIELDS = [
+  "missingIds",
+  "resolvedAliases",
+  "ambiguousAliases",
+  "suggestions",
+  "missingDiagnostics",
+] as const;
+
+function extractRecoveryFields(body: unknown): Record<string, unknown> {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) return {};
+  const out: Record<string, unknown> = {};
+  const b = body as Record<string, unknown>;
+  for (const key of RECOVERY_FIELDS) {
+    if (key in b) out[key] = b[key];
+  }
+  return out;
+}
+
 async function callApi(
   ctx: ToolContext,
   url: string,
@@ -117,7 +139,12 @@ async function callApi(
 
   if (!res.ok) {
     return toResponse(
-      { error: extractError(body), status: res.status, _index9: buildMeta(ctx, res.headers) },
+      {
+        error: extractError(body),
+        status: res.status,
+        ...extractRecoveryFields(body),
+        _index9: buildMeta(ctx, res.headers),
+      },
       true,
     );
   }
@@ -171,7 +198,11 @@ export async function handleGetModels(ctx: ToolContext, args: unknown): Promise<
   return callApi(
     ctx,
     `${ctx.baseUrl}${API_PATHS.model}`,
-    { method: "POST", headers: baseHeaders(ctx), body: JSON.stringify(parsed.data) },
+    {
+      method: "POST",
+      headers: baseHeaders(ctx),
+      body: JSON.stringify(parsed.data),
+    },
     BatchModelLookupResponseSchema,
   );
 }
@@ -185,7 +216,11 @@ export async function handleCompareModels(ctx: ToolContext, args: unknown): Prom
   return callApi(
     ctx,
     `${ctx.baseUrl}${API_PATHS.compare}`,
-    { method: "POST", headers: baseHeaders(ctx), body: JSON.stringify(parsed.data) },
+    {
+      method: "POST",
+      headers: baseHeaders(ctx),
+      body: JSON.stringify(parsed.data),
+    },
     CompareResponseSchema,
   );
 }
