@@ -11,7 +11,7 @@ import {
   TestResponseSchema,
 } from "@index9/core";
 import type { ZodType } from "zod";
-import { buildUrl, fetchWithRetry } from "./client.js";
+import { buildUrl, type FetchWithRetryOptions, fetchWithRetry } from "./client.js";
 
 type ToolContext = {
   baseUrl: string;
@@ -127,8 +127,9 @@ async function callApi(
   url: string,
   options: RequestInit,
   responseSchema: ZodType,
+  retryOptions?: FetchWithRetryOptions,
 ): Promise<ToolResponse> {
-  const res = await fetchWithRetry(url, options);
+  const res = await fetchWithRetry(url, options, retryOptions);
 
   let body: unknown;
   try {
@@ -260,5 +261,10 @@ export async function handleTestModels(ctx: ToolContext, args: unknown): Promise
     `${ctx.baseUrl}${API_PATHS.test}`,
     { method: "POST", headers: reqHeaders, body: JSON.stringify(parsed.data) },
     TestResponseSchema,
+    // Live inference is non-idempotent and slow: each retry costs real money
+    // and the server-side per-model retry/backoff already handles transient
+    // errors. Give the call enough wall-clock to cover a worst-case 10-model
+    // batch × 60s per model and let the server decide on retries.
+    { attemptTimeoutMs: 240_000, maxRetries: 0 },
   );
 }

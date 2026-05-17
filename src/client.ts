@@ -1,5 +1,17 @@
-const RETRY_DELAYS_MS = [1000, 2000, 4000];
-const ATTEMPT_TIMEOUT_MS = 30_000;
+const DEFAULT_RETRY_DELAYS_MS = [1000, 2000, 4000];
+const DEFAULT_ATTEMPT_TIMEOUT_MS = 30_000;
+
+export interface FetchWithRetryOptions {
+  // Per-attempt deadline. test_model overrides this to ~240s because live
+  // inference can legitimately take that long; read-only tools keep the 30s
+  // default so a stuck API never blocks the agent.
+  attemptTimeoutMs?: number;
+  // Number of retries AFTER the first attempt. test_model passes 0 because
+  // inference is non-idempotent — retrying burns OpenRouter credits and
+  // amplifies upstream capacity errors. Server-side per-model retries handle
+  // anything genuinely transient.
+  maxRetries?: number;
+}
 
 function isRetryable(status: number): boolean {
   return status === 429 || status >= 500;
@@ -20,15 +32,23 @@ function toErrorMessage(error: unknown): string {
   return "Unknown error";
 }
 
-export async function fetchWithRetry(url: string, options: RequestInit): Promise<Response> {
+export async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retryOptions?: FetchWithRetryOptions,
+): Promise<Response> {
+  const attemptTimeoutMs = retryOptions?.attemptTimeoutMs ?? DEFAULT_ATTEMPT_TIMEOUT_MS;
+  const maxRetries = Math.max(0, retryOptions?.maxRetries ?? DEFAULT_RETRY_DELAYS_MS.length);
+  const retryDelaysMs = DEFAULT_RETRY_DELAYS_MS.slice(0, maxRetries);
+
   let lastResponse: Response | null = null;
   let lastError: unknown;
 
-  for (let i = 0; i <= RETRY_DELAYS_MS.length; i++) {
+  for (let i = 0; i <= maxRetries; i++) {
     const timeoutController = new AbortController();
     const timeoutId = setTimeout(() => {
       timeoutController.abort(new DOMException("Request timed out", "AbortError"));
-    }, ATTEMPT_TIMEOUT_MS);
+    }, attemptTimeoutMs);
 
     const externalSignal = options.signal;
     const onAbort = () => {
@@ -57,15 +77,13 @@ export async function fetchWithRetry(url: string, options: RequestInit): Promise
       externalSignal?.removeEventListener("abort", onAbort);
     }
 
-    if (i < RETRY_DELAYS_MS.length) {
-      await sleep(RETRY_DELAYS_MS[i]);
+    if (i < retryDelaysMs.length) {
+      await sleep(retryDelaysMs[i]);
     }
   }
 
   if (lastResponse) return lastResponse;
-  throw new Error(
-    `Request failed after ${RETRY_DELAYS_MS.length + 1} attempts: ${toErrorMessage(lastError)}`,
-  );
+  throw new Error(`Request failed after ${maxRetries + 1} attempts: ${toErrorMessage(lastError)}`);
 }
 
 export function buildUrl(baseUrl: string, path: string, params?: Record<string, string>): string {
