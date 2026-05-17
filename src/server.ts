@@ -54,16 +54,8 @@ export async function createServer(): Promise<McpServer> {
         sortOrder: z.enum(["asc", "desc"]).optional().describe("Sort order. Defaults by sortBy."),
         createdAfter: z.string().optional().describe("Lower bound for model created timestamp."),
         createdBefore: z.string().optional().describe("Upper bound for model created timestamp."),
-        minPrice: z
-          .number()
-          .min(0)
-          .optional()
-          .describe("Minimum prompt price in USD per million tokens."),
-        maxPrice: z
-          .number()
-          .min(0)
-          .optional()
-          .describe("Maximum prompt price in USD per million tokens."),
+        minPrice: z.number().min(0).optional().describe(PARAM_DESCRIPTIONS.minPrice),
+        maxPrice: z.number().min(0).optional().describe(PARAM_DESCRIPTIONS.maxPrice),
         minContext: z
           .number()
           .int()
