@@ -7,6 +7,7 @@ import {
   ListFacetsToolResultSchema,
   OUTPUT_MODALITIES,
   PARAM_DESCRIPTIONS,
+  ProviderSortSchema,
   ResponseFormatSchema,
   TOOLS,
   UserContentPartSchema,
@@ -232,6 +233,41 @@ export async function createServer(): Promise<McpServer> {
           .max(3)
           .optional()
           .describe("Retries for transient failures."),
+        stream: z
+          .boolean()
+          .optional()
+          .describe(
+            "Use OpenRouter SSE streaming so capacity/refusal errors surface quickly. Defaults to false.",
+          ),
+        firstTokenTimeoutMs: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe("Streaming-only first-token deadline in ms. Defaults to 10000."),
+        providerSort: ProviderSortSchema.optional().describe(
+          'OpenRouter provider routing sort: "throughput", "price", or "latency".',
+        ),
+        providerOrder: z
+          .array(z.string().min(1))
+          .min(1)
+          .max(8)
+          .optional()
+          .describe("Provider slugs to try first, in order. Up to 8."),
+        fallbackModels: z
+          .array(z.string().min(1))
+          .min(1)
+          .max(5)
+          .optional()
+          .describe(
+            "Fallback model IDs OpenRouter may try if the primary is unavailable. Up to 5.",
+          ),
+        debug: z
+          .boolean()
+          .optional()
+          .describe(
+            "When true, include upstream finish_reason, provider, error, refusal, and usage.",
+          ),
       },
       // No outputSchema: test_model returns a z.union of dry-run and live shapes.
       // The SDK supports only ZodRawShape | AnySchema for outputSchema; a discriminated-union
