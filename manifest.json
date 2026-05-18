@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.3",
   "name": "index9",
-  "version": "6.4.0",
+  "version": "6.5.0",
   "description": "Discover, shortlist, compare, cost-model, and live-test 300+ AI models from your editor",
   "author": {
     "name": "Index9"
@@ -11,9 +11,7 @@
     "entry_point": "dist/cli.js",
     "mcp_config": {
       "command": "node",
-      "args": [
-        "${__dirname}/dist/cli.js"
-      ],
+      "args": ["${__dirname}/dist/cli.js"],
       "env": {
         "OPENROUTER_API_KEY": "${user_config.openrouter_api_key}"
       }
@@ -21,32 +19,28 @@
   },
   "tools": [
     {
+      "name": "list_facets",
+      "description": "List available providers, capabilities, modalities, and tokenizers"
+    },
+    {
       "name": "find_models",
-      "description": "Search and paginate AI models by semantic query or filters"
+      "description": "Search AI models by semantic query or filters"
     },
     {
       "name": "get_models",
-      "description": "Get full model metadata by IDs or aliases (batch, up to 100)"
+      "description": "Fetch full model metadata for up to 100 IDs or aliases"
     },
     {
       "name": "compare_models",
       "description": "Diff 2-10 models across pricing, context, capabilities, and tokenizer"
     },
     {
-      "name": "list_facets",
-      "description": "Enumerate available providers, capabilities, modalities, and tokenizers"
-    },
-    {
       "name": "test_model",
-      "description": "Run live inference or dry-run cost estimation across up to 10 models"
+      "description": "Run live inference or dry-run cost estimates on 1-10 models"
     }
   ],
   "compatibility": {
-    "platforms": [
-      "darwin",
-      "linux",
-      "win32"
-    ],
+    "platforms": ["darwin", "linux", "win32"],
     "runtimes": {
       "node": ">=20.0.0"
     }
@@ -55,7 +49,7 @@
     "openrouter_api_key": {
       "type": "string",
       "title": "OpenRouter API Key",
-      "description": "Required for live test_model calls. dryRun=true does not require it.",
+      "description": "Required for live test_model calls. dryRun=true works without it.",
       "sensitive": true,
       "required": false
     }

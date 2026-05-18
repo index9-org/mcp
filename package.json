@@ -1,6 +1,7 @@
 {
   "name": "@index9/mcp",
   "version": "6.5.0",
+  "description": "Discover, shortlist, compare, cost-model, and live-test 300+ AI models from your editor",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -11,7 +12,8 @@
   },
   "files": [
     "dist",
-    "manifest.json"
+    "manifest.json",
+    "server.json"
   ],
   "type": "module",
   "main": "./dist/cli.js",
@@ -39,5 +41,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "mcpName": "io.github.index9-org/mcp"
 }
