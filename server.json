@@ -7,13 +7,13 @@
     "url": "https://github.com/index9-org/mcp",
     "source": "github"
   },
-  "version": "6.5.0",
+  "version": "6.5.1",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@index9/mcp",
-      "version": "6.5.0",
+      "version": "6.5.1",
       "transport": {
         "type": "stdio"
       },

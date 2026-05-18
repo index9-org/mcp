@@ -1,0 +1,45 @@
+name: Publish to MCP Registry
+
+# This workflow lives in the public mirror (index9-org/mcp) via the monorepo's
+# mirror-mcp.yml job. It runs in the mirror's context so the OIDC token's
+# `repository_owner` resolves to `index9-org`, which the MCP Registry requires
+# to authorize publishes under `io.github.index9-org/*`. Publishing the same
+# server.json from the monorepo (johnwils/index9) is rejected because OIDC
+# there resolves to a personal namespace.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server.json"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: publish-registry
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Install mcp-publisher
+        run: |
+          set -euo pipefail
+          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+          curl -fL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_${OS}_${ARCH}.tar.gz" | tar xz mcp-publisher
+
+      - name: Publish to MCP Registry
+        run: |
+          set -euo pipefail
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
