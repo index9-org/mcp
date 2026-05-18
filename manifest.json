@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.3",
   "name": "index9",
-  "version": "6.3.0",
+  "version": "6.4.0",
   "description": "Discover, shortlist, compare, cost-model, and live-test 300+ AI models from your editor",
   "author": {
     "name": "Index9"
@@ -11,7 +11,9 @@
     "entry_point": "dist/cli.js",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/dist/cli.js"],
+      "args": [
+        "${__dirname}/dist/cli.js"
+      ],
       "env": {
         "OPENROUTER_API_KEY": "${user_config.openrouter_api_key}"
       }
@@ -40,7 +42,11 @@
     }
   ],
   "compatibility": {
-    "platforms": ["darwin", "linux", "win32"],
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ],
     "runtimes": {
       "node": ">=20.0.0"
     }
